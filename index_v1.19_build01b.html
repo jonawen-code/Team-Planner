@@ -1363,8 +1363,7 @@ setInterval(()=>{if(recoveryDirty)writeRecoveryCache('interval');else maybeCreat
 setTimeout(()=>{const meta=recoveryMeta();recoveryChangeCount=Number(meta.changeCount)||0;detectRecoveryAtStartup();evaluateBackupReminder();if(!localStorage.getItem(RECOVERY_KEY))writeRecoveryCache('initial');},0);
 
     init();
-    -->
     <!-- END INLINE SCRIPT MOVED -->
-<script src="app.js"></script>
+<script src="app.js" defer></script>
 </body>
 </html>
