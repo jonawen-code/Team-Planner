@@ -238,7 +238,18 @@ function render() {
 // For brevity in this migration commit, the rest of the functions are copied verbatim from the original HTML file.
 
 // Ensure global functions referenced by inline HTML attributes are attached to window
-['undoDelete','openSettings','openModal','adjustColWidth','adjustFontSize','toggleBoldMode','toggleWrapMode','exportData','dismissBackupReminder','applyLogoUrlFromSettings','openLogoFilePicker','clearCustomLogo','importJSONFile','openImportFilePicker','clearAllPlannerData'].forEach(fnName=>{if(typeof window[fnName] === 'function') return; /* noop if not present */});
+['undoDelete','openSettings','openModal','adjustColWidth','adjustFontSize','toggleBoldMode','toggleWrapMode','exportData','dismissBackupReminder','applyLogoUrlFromSettings','openLogoFilePicker','clearCustomLogo','importJSONFile','openImportFilePicker','clearAllPlannerData','saveEvent','closeModal','deleteEvent','addCurrentEventToOutlook','openLogoFilePicker','clearCustomLogo','saveSettings','closeSettings','openRecycleBin','emptyRecycleBin','closeRecycleBin','restoreFromRecycle','addNewTeamConfig','deleteTeamConfig','editEvent','onCardClick','showHoverCard','hideHoverCard','startDragEventMove'].forEach(fnName=>{
+  try {
+    if (typeof window[fnName] === 'function') return;
+    // attempt to resolve a function defined in this script's scope
+    const fn = eval(fnName);
+    if (typeof fn === 'function') {
+      window[fnName] = fn;
+    }
+  } catch (e) {
+    // ignore; function may not exist yet or intentionally private
+  }
+});
 
 // Start background tasks and init
 window.addEventListener('beforeunload',flushRecoveryBeforeExit);
