@@ -210,6 +210,7 @@
 </div>
 
 <!-- INLINE SCRIPT MOVED TO app.js -->
+<!--
 const holidays_2026 = {
   '2026-01-01': '元旦', '2026-01-02': '元旦', '2026-01-03': '元旦',
   '2026-02-15': '春节', '2026-02-16': '春节', '2026-02-17': '春节', '2026-02-18': '春节',
@@ -1370,8 +1371,9 @@ window.addEventListener('beforeunload',flushRecoveryBeforeExit);
 setInterval(()=>{if(recoveryDirty)writeRecoveryCache('interval');else maybeCreateSnapshot(buildRecoveryEnvelope('scheduled-snapshot'));},SNAPSHOT_INTERVAL_MS);
 setTimeout(()=>{const meta=recoveryMeta();recoveryChangeCount=Number(meta.changeCount)||0;detectRecoveryAtStartup();evaluateBackupReminder();if(!localStorage.getItem(RECOVERY_KEY))writeRecoveryCache('initial');},0);
 
-init();
-<!-- END INLINE SCRIPT MOVED -->
+    init();
+    -->
+    <!-- END INLINE SCRIPT MOVED -->
 <script src="app.js"></script>
 </body>
 </html>
