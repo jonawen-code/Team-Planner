@@ -209,57 +209,7 @@
   </div>
 </div>
 
-<!-- INLINE SCRIPT: 已完全迁移至 app.js。原内联脚本已在仓库中合并为 app.js，已从 HTML 中移除以避免作为普通文本渲染。 -->
-let events=currentProject.events;
-const requiredTeamNames=new Set(events.map(e=>e.team).filter(Boolean));requiredTeamNames.forEach(name=>{if(!teams.some(t=>t.name===name)){const base=defaultTeams.find(t=>t.name===name);teams.push(base?{...base}:{name,color:'#6366f1',light:false,visible:true});}});
-const lab1=events.find(e=>String(e.id)==='404'&&e.title==='Leading a Team Lab 1'&&e.start==='2026-04-20');if(lab1)lab1.team='L&D';
-let appTitle=currentProject.branding.title;
-let appSubtitle=currentProject.branding.subtitle;
-let appLogo=currentProject.branding.logo;
-let appLogoType=currentProject.branding.logoType;
-let currentColWidth=currentProject.settings.colWidth;
-let currentFontSize=currentProject.settings.fontSize;
-let isWrapMode=currentProject.settings.isWrapMode;
-let isBoldMode=currentProject.settings.isBoldMode;
-let showLunar=currentProject.settings.showLunar;
-let showWeekend=currentProject.settings.showWeekend;
-let showHolidays=currentProject.settings.showHolidays;
-let showAdjusted=currentProject.settings.showAdjusted;
-let view='month',year=2026,currentMonth=8,editId=null;
-let recycleBin=currentProject.recycleBin;
-let lastDeletedEvent=recycleBin.length?recycleBin[recycleBin.length-1]:null;
-function syncProjectModel(){currentProject.schemaVersion='TeamPlannerProject/1.19';currentProject.metadata={...(currentProject.metadata||{}),projectName:String(currentProject.metadata?.projectName||appTitle||'Team Planner Project').trim()||'Team Planner Project',version:'1.19',build:'01B',createdAt:currentProject.metadata?.createdAt||new Date().toISOString(),modifiedAt:new Date().toISOString()};currentProject.branding={title:appTitle,subtitle:appSubtitle,logo:appLogo,logoType:appLogoType};currentProject.settings={colWidth:currentColWidth,fontSize:currentFontSize,isWrapMode,isBoldMode,showLunar,showWeekend,showHolidays,showAdjusted};currentProject.teams=teams;currentProject.events=events;currentProject.recycleBin=recycleBin;return currentProject;}
-function persistProjectCache(){syncProjectModel();localStorage.setItem(PROJECT_CACHE_KEY,JSON.stringify(currentProject));}
-persistProjectCache();
-
-const $ = id => document.getElementById(id);
-
-let isDraggingEvent = false;
-let draggedEventId = null;
-let dragOriginStartDay = null;
-let dragSpanDays = null;
-let dragHoverDay = null;
-let dragHoverTeam = null;
-
-let isCellMouseDown = false;
-let selectTeam = null;
-let selectStartDay = null;
-let selectEndDay = null;
-
-function init() {
-  applyBranding();
-  $('yearSelect').innerHTML = Array.from({length: 11}, (_, i) => `<option value="${2023 + i}">${2023 + i}</option>`).join('');
-  $('yearSelect').value = year;
-  $('monthLabel').textContent = `${currentMonth + 1}月`;
-  applyColWidth(currentColWidth);
-  applyFontSize(currentFontSize);
-  updateWrapBtnUI();
-  updateBoldBtnUI();
-  renderTeamToggles();
-  renderLegend();
-  render();
-  bindGlobalInteractions();
-  updateRecycleCount();
+<!-- INLINE SCRIPT 已完全迁移至 app.js。页面已移除所有内联脚本并仅保留 app.js 作为执行入口 -->
 }
 
 function adjustColWidth(delta) {
