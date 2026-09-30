@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Team Planner v1.19 Build 01B</title>
+<title>Team Planner V18</title>
 <style>
 :root{
   --red:#d50022;--red-dark:#b0001a;--ink:#1e293b;--muted:#64748b;--line:#cbd5e1;--bg:#f1f5f9;--panel:#fff;
@@ -292,20 +292,7 @@ main{padding:14px 24px 40px}
 .event-pill.status-planned{border-left:0!important;box-shadow:0 2px 6px rgba(15,23,42,.16)!important}
 /* Modal typography */
 .modal{font-size:13px}.modal h3{font-size:18px!important;font-weight:700!important;color:#0f172a!important;line-height:1.3}.modal .field label,.modal .settings-title{font-size:13px!important}.modal input,.modal select,.modal textarea,.modal button,.modal .actions button{font-size:13px!important}
-.recycle-row{display:grid;grid-template-columns:1fr 110px 130px 80px;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}.recycle-title{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.recycle-empty{padding:28px;text-align:center;color:var(--muted)}
-/* RECOVERY_MANAGER_BUILD_01B */
-.recovery-status{font-size:12px;color:#64748b;display:flex;align-items:center;gap:6px;white-space:nowrap}
-.recovery-dot{width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block}
-.recovery-dot.dirty{background:#d97706}.recovery-dot.warning{background:#dc2626}
-.recovery-panel{position:fixed;inset:0;background:rgba(15,23,42,.48);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
-.recovery-dialog{background:#fff;width:min(620px,96vw);max-height:88vh;overflow:auto;border-radius:12px;padding:22px;box-shadow:0 24px 60px rgba(15,23,42,.28)}
-.recovery-dialog h3{margin:0 0 8px}.recovery-dialog p{color:#64748b;line-height:1.55}
-.recovery-item{border:1px solid #e2e8f0;border-radius:8px;padding:11px 12px;margin:8px 0;display:flex;gap:12px;align-items:center}
-.recovery-item-main{flex:1}.recovery-item-title{font-weight:700}.recovery-item-meta{font-size:12px;color:#64748b;margin-top:3px}
-.recovery-banner{display:none;background:#fff7ed;border:1px solid #fdba74;color:#9a3412;padding:8px 14px;font-size:12px;align-items:center;gap:10px}
-.recovery-banner.show{display:flex}.recovery-banner button{margin-left:auto}
-
-</style>
+.recycle-row{display:grid;grid-template-columns:1fr 110px 130px 80px;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}.recycle-title{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.recycle-empty{padding:28px;text-align:center;color:var(--muted)}</style>
 </head>
 <body>
 
@@ -319,10 +306,6 @@ main{padding:14px 24px 40px}
     <div class="subtitle" id="appSubtitle">Annual & Monthly Planning Board</div>
   </div>
   <div class="spacer"></div>
-  <div class="recovery-status" id="recoveryStatus" title="浏览器恢复缓存状态">
-    <span class="recovery-dot" id="recoveryDot"></span>
-    <span id="recoveryStatusText">已建立恢复点</span>
-  </div>
   <button id="undoDeleteBtn" class="icon-btn" onclick="undoDelete()" style="display:none">↩ 撤销删除</button>
   <button class="icon-btn" onclick="openSettings()"><span style="font-size:14px">⚙️</span> 系统设置</button>
   <button class="primary" onclick="openModal()">＋ 新建计划</button>
@@ -370,11 +353,6 @@ main{padding:14px 24px 40px}
   <div class="spacer"></div>
 </div>
 
-<div class="recovery-banner" id="backupReminderBanner">
-  <span id="backupReminderText">建议导出项目文件，防止清理浏览器数据后无法恢复。</span>
-  <button type="button" onclick="exportData()">立即备份</button>
-  <button type="button" onclick="dismissBackupReminder()">稍后提醒</button>
-</div>
 <main>
   <div class="team-toggles-bar" id="teamTogglesBar">
     <span class="toggle-title">职能团队显示开关:</span>
@@ -478,17 +456,17 @@ main{padding:14px 24px 40px}
     <div class="settings-section">
       <div class="settings-title">数据维护</div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <button onclick="exportData()">导出项目 (.tplanner.json)</button>
-        <button onclick="openImportFilePicker()">导入项目 (.json / .tplanner.json)</button>
+        <button onclick="exportData()">导出全量配置与排期 (JSON)</button>
+        <button onclick="openImportFilePicker()">导入排期文件 (JSON)</button>
         <button onclick="openRecycleBin()">回收站 <span id="recycleCount"></span></button>
         <button class="danger" onclick="clearAllPlannerData()">全面清除数据 / 恢复初始状态</button>
-        <input id="jsonFileInput" type="file" accept="application/json,.json,.tplanner.json" style="display:none" onchange="importJSONFile(event)" />
+        <input id="jsonFileInput" type="file" accept="application/json,.json" style="display:none" onchange="importJSONFile(event)" />
       </div>
     </div>
     <div class="settings-section">
       <div class="settings-title">版本更新</div>
       <div style="font-size:12px;color:var(--muted);line-height:1.7">
-        <b>v1.19 Build 01B</b>：增加自动恢复、5 份轮转快照、备份提醒与恢复中心。
+        <b>V18</b>：修复 JSON 导入；增加全面重置；支持标题、副标题及本地/外部 Logo。
       </div>
     </div>
     <div class="actions">
@@ -499,16 +477,6 @@ main{padding:14px 24px 40px}
 </div>
 
 <div class="modal-back" id="recycleModal"><div class="modal" style="width:min(760px,94vw)"><h3>🗑️ 排期回收站</h3><div id="recycleList"></div><div class="actions"><button class="danger" onclick="emptyRecycleBin()">清空回收站</button><button class="primary" onclick="closeRecycleBin()">关闭</button></div></div></div><div class="toast" id="toast"></div>
-<div class="recovery-panel" id="recoveryPanel">
-  <div class="recovery-dialog">
-    <h3 id="recoveryPanelTitle">恢复中心</h3>
-    <p id="recoveryPanelMessage"></p>
-    <div id="recoveryList"></div>
-    <div class="actions">
-      <button id="recoveryIgnoreBtn" onclick="closeRecoveryPanel()">继续使用当前数据</button>
-    </div>
-  </div>
-</div>
 
 <script>
 const holidays_2026 = {
@@ -564,48 +532,31 @@ const verifiedFullYearEvents = [];
 const LEGACY_TEAM_MAP={LD:'L&D',ENG:'Engagement',ELC:'TA',MEET:'Meeting',CB:'C&B'};
 function normalizeTeamName(v,list=teams){const raw=String(v||'').trim();if(!raw)return '';const exact=(list||[]).find(t=>String(t.name||'').trim().toLowerCase()===raw.toLowerCase());if(exact)return exact.name;return LEGACY_TEAM_MAP[raw.toUpperCase()]||raw;}
 function migrateTeams(raw){const source=Array.isArray(raw)?raw:defaultTeams,seen=new Set();return source.map(t=>{const sourceName=t.name||LEGACY_TEAM_MAP[String(t.id||'').toUpperCase()]||t.id;const name=normalizeTeamName(sourceName,defaultTeams);return {name,color:t.color||'#6366f1',light:typeof t.light==='boolean'?t.light:isColorLight(t.color||'#6366f1'),visible:t.visible!==false};}).filter(t=>t.name&&!seen.has(t.name.toLowerCase())&&(seen.add(t.name.toLowerCase()),true));}
-const PROJECT_CACHE_KEY='hr_planner_project_cache_v119';
-function readJSONStorage(key,fallback=null){try{const raw=localStorage.getItem(key);return raw===null?fallback:JSON.parse(raw);}catch(e){return fallback;}}
-function buildLegacyProject(){
-  const legacyTeams=migrateTeams(readJSONStorage('hr_planner_teams_global',readJSONStorage('hr_planner_teams_v13',defaultTeams))||defaultTeams);
-  const legacyEvents=(readJSONStorage('hr_planner_events_global',readJSONStorage('hr_planner_events_v13',verifiedFullYearEvents))||verifiedFullYearEvents).map(e=>({...e,team:normalizeTeamName(e.team,legacyTeams),status:e.status==='confirmed'?'confirmed':'planned'}));
-  const legacyRecycle=(readJSONStorage('hr_planner_recycle_bin_global',[])||[]).map(e=>({...e,team:normalizeTeamName(e.team,legacyTeams)}));
-  const now=new Date().toISOString();
-  return {schemaVersion:'TeamPlannerProject/1.19',metadata:{projectName:'Team Planner Project',version:'1.19',build:'01B',createdAt:now,modifiedAt:now},branding:{title:localStorage.getItem('hr_planner_title_global')||localStorage.getItem('hr_planner_title_v13')||'Team Planner',subtitle:localStorage.getItem('hr_planner_subtitle_global')||'Annual & Monthly Planning Board',logo:localStorage.getItem('hr_planner_logo_global')||'',logoType:localStorage.getItem('hr_planner_logo_type_global')||''},settings:{colWidth:+localStorage.getItem('hr_planner_colwidth_global')||48,fontSize:+localStorage.getItem('hr_planner_fontsize_global')||11,isWrapMode:localStorage.getItem('hr_planner_wrapmode_global')==='true',isBoldMode:localStorage.getItem('hr_planner_boldmode_global')!=='false',showLunar:localStorage.getItem('hr_planner_show_lunar_global')==='true',showWeekend:localStorage.getItem('hr_planner_show_weekend_global')!=='false',showHolidays:localStorage.getItem('hr_planner_show_holidays_global')!=='false',showAdjusted:localStorage.getItem('hr_planner_show_adjusted_global')!=='false'},teams:legacyTeams,events:legacyEvents,recycleBin:legacyRecycle};
-}
-function normalizeProject(raw){
-  const src=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
-  const isV19=src.schemaVersion==='TeamPlannerProject/1.19'||(src.metadata&&src.branding&&src.settings);
-  const sourceTeams=migrateTeams(src.teams||defaultTeams);
-  const sourceEvents=Array.isArray(src.events)?src.events:[];
-  const branding=isV19?(src.branding||{}):{title:src.title,subtitle:src.subtitle,logo:src.logo,logoType:src.logoType};
-  const settings=isV19?(src.settings||{}):src;
-  const now=new Date().toISOString();
-  return {schemaVersion:'TeamPlannerProject/1.19',metadata:{projectName:String(src.metadata?.projectName||branding.title||'Team Planner Project').trim()||'Team Planner Project',version:'1.19',build:'01B',createdAt:src.metadata?.createdAt||now,modifiedAt:src.metadata?.modifiedAt||now},branding:{title:String(branding.title||'Team Planner'),subtitle:typeof branding.subtitle==='string'?branding.subtitle:'Annual & Monthly Planning Board',logo:typeof branding.logo==='string'?branding.logo:'',logoType:branding.logoType==='file'?'file':(branding.logo?'url':'')},settings:{colWidth:Number.isFinite(Number(settings.colWidth))?Math.min(80,Math.max(34,Number(settings.colWidth))):48,fontSize:Number.isFinite(Number(settings.fontSize))?Math.min(14,Math.max(9,Number(settings.fontSize))):11,isWrapMode:settings.isWrapMode===true,isBoldMode:settings.isBoldMode!==false,showLunar:settings.showLunar===true,showWeekend:settings.showWeekend!==false,showHolidays:settings.showHolidays!==false,showAdjusted:settings.showAdjusted!==false},teams:sourceTeams,events:sourceEvents.map(e=>({...e,team:normalizeTeamName(e.team,sourceTeams),status:e.status==='confirmed'?'confirmed':'planned'})),recycleBin:(Array.isArray(src.recycleBin)?src.recycleBin:[]).map(e=>({...e,team:normalizeTeamName(e.team,sourceTeams)}))};
-}
-let currentProject=normalizeProject(readJSONStorage(PROJECT_CACHE_KEY,null)||buildLegacyProject());
-let teams=currentProject.teams;
-let events=currentProject.events;
+let teams=migrateTeams(JSON.parse(localStorage.getItem('hr_planner_teams_global')||localStorage.getItem('hr_planner_teams_v13')||'null')||defaultTeams);
+let events=JSON.parse(localStorage.getItem('hr_planner_events_global')||localStorage.getItem('hr_planner_events_v13')||'null')||verifiedFullYearEvents;
+events=events.map(e=>({...e,team:normalizeTeamName(e.team,teams),status:e.status==='confirmed'?'confirmed':'planned'}));
 const requiredTeamNames=new Set(events.map(e=>e.team).filter(Boolean));requiredTeamNames.forEach(name=>{if(!teams.some(t=>t.name===name)){const base=defaultTeams.find(t=>t.name===name);teams.push(base?{...base}:{name,color:'#6366f1',light:false,visible:true});}});
+// Explicit repair confirmed by user
 const lab1=events.find(e=>String(e.id)==='404'&&e.title==='Leading a Team Lab 1'&&e.start==='2026-04-20');if(lab1)lab1.team='L&D';
-let appTitle=currentProject.branding.title;
-let appSubtitle=currentProject.branding.subtitle;
-let appLogo=currentProject.branding.logo;
-let appLogoType=currentProject.branding.logoType;
-let currentColWidth=currentProject.settings.colWidth;
-let currentFontSize=currentProject.settings.fontSize;
-let isWrapMode=currentProject.settings.isWrapMode;
-let isBoldMode=currentProject.settings.isBoldMode;
-let showLunar=currentProject.settings.showLunar;
-let showWeekend=currentProject.settings.showWeekend;
-let showHolidays=currentProject.settings.showHolidays;
-let showAdjusted=currentProject.settings.showAdjusted;
-let view='month',year=2026,currentMonth=8,editId=null;
-let recycleBin=currentProject.recycleBin;
+localStorage.setItem('hr_planner_teams_global',JSON.stringify(teams));localStorage.setItem('hr_planner_events_global',JSON.stringify(events));
+let appTitle = localStorage.getItem('hr_planner_title_global') || localStorage.getItem('hr_planner_title_v13') || 'Team Planner';
+let appSubtitle = localStorage.getItem('hr_planner_subtitle_global') || 'Annual & Monthly Planning Board';
+let appLogo = localStorage.getItem('hr_planner_logo_global') || '';
+let appLogoType = localStorage.getItem('hr_planner_logo_type_global') || '';
+
+let currentColWidth = +localStorage.getItem('hr_planner_colwidth_global') || 48;
+let currentFontSize = +localStorage.getItem('hr_planner_fontsize_global') || 11;
+let isWrapMode = localStorage.getItem('hr_planner_wrapmode_global') === 'true';
+let isBoldMode = localStorage.getItem('hr_planner_boldmode_global') !== 'false';
+let showLunar = localStorage.getItem('hr_planner_show_lunar_global') === 'true';
+let showWeekend = localStorage.getItem('hr_planner_show_weekend_global') !== 'false';
+let showHolidays = localStorage.getItem('hr_planner_show_holidays_global') !== 'false';
+let showAdjusted = localStorage.getItem('hr_planner_show_adjusted_global') !== 'false';
+
+let view = 'month', year = 2026, currentMonth = 8, editId = null;
+let recycleBin=JSON.parse(localStorage.getItem('hr_planner_recycle_bin_global')||'[]').map(e=>({...e,team:normalizeTeamName(e.team,teams)}));
 let lastDeletedEvent=recycleBin.length?recycleBin[recycleBin.length-1]:null;
-function syncProjectModel(){currentProject.schemaVersion='TeamPlannerProject/1.19';currentProject.metadata={...(currentProject.metadata||{}),projectName:String(currentProject.metadata?.projectName||appTitle||'Team Planner Project').trim()||'Team Planner Project',version:'1.19',build:'01B',createdAt:currentProject.metadata?.createdAt||new Date().toISOString(),modifiedAt:new Date().toISOString()};currentProject.branding={title:appTitle,subtitle:appSubtitle,logo:appLogo,logoType:appLogoType};currentProject.settings={colWidth:currentColWidth,fontSize:currentFontSize,isWrapMode,isBoldMode,showLunar,showWeekend,showHolidays,showAdjusted};currentProject.teams=teams;currentProject.events=events;currentProject.recycleBin=recycleBin;return currentProject;}
-function persistProjectCache(){syncProjectModel();localStorage.setItem(PROJECT_CACHE_KEY,JSON.stringify(currentProject));}
-persistProjectCache();
+localStorage.setItem('hr_planner_recycle_bin_global',JSON.stringify(recycleBin));
 
 const $ = id => document.getElementById(id);
 
@@ -640,7 +591,7 @@ function init() {
 function adjustColWidth(delta) {
   currentColWidth = Math.min(80, Math.max(34, currentColWidth + delta));
   applyColWidth(currentColWidth);
-  persistProjectCache();
+  localStorage.setItem('hr_planner_colwidth_global', currentColWidth);
 }
 function applyColWidth(w) {
   document.documentElement.style.setProperty('--col-w', `${w}px`);
@@ -650,7 +601,7 @@ function applyColWidth(w) {
 function adjustFontSize(delta) {
   currentFontSize = Math.min(14, Math.max(9, currentFontSize + delta));
   applyFontSize(currentFontSize);
-  persistProjectCache();
+  localStorage.setItem('hr_planner_fontsize_global', currentFontSize);
 }
 function applyFontSize(size) {
   document.documentElement.style.setProperty('--item-font-size', `${size}px`);
@@ -659,7 +610,7 @@ function applyFontSize(size) {
 
 function toggleBoldMode() {
   isBoldMode = !isBoldMode;
-  persistProjectCache();
+  localStorage.setItem('hr_planner_boldmode_global', isBoldMode);
   updateBoldBtnUI();
   render();
   toast(isBoldMode ? '已切换为：粗体显示' : '已切换为：正常字重');
@@ -672,7 +623,7 @@ function updateBoldBtnUI() {
 
 function toggleWrapMode() {
   isWrapMode = !isWrapMode;
-  persistProjectCache();
+  localStorage.setItem('hr_planner_wrapmode_global', isWrapMode);
   updateWrapBtnUI();
   render();
   toast(isWrapMode ? '已切换为：单元格自动换行显示全部' : '已切换为：单元格单行省略截断 (...)');
@@ -1258,20 +1209,20 @@ function saveEvent() {
 
 function deleteEvent() {
   const target=events.find(e=>e.id===editId);if(!target)return;if(!confirm(`确定删除排期【${target.title}】吗？删除后可从回收站恢复。`))return;
-  const deleted={...JSON.parse(JSON.stringify(target)),deletedAt:new Date().toISOString()};recycleBin.push(deleted);lastDeletedEvent=deleted;persistProjectCache();
+  const deleted={...JSON.parse(JSON.stringify(target)),deletedAt:new Date().toISOString()};recycleBin.push(deleted);lastDeletedEvent=deleted;localStorage.setItem('hr_planner_recycle_bin_global',JSON.stringify(recycleBin));
   events=events.filter(e=>e.id!==editId);persistEvents();closeModal();$('undoDeleteBtn').style.display='inline-flex';updateRecycleCount();render();toast('排期已移入回收站');
 }
 function undoDelete() {
   if(!lastDeletedEvent)return toast('没有可恢复的排期');const restored={...lastDeletedEvent};delete restored.deletedAt;if(events.some(e=>String(e.id)===String(restored.id)))restored.id=Date.now();events.push(restored);
-  recycleBin=recycleBin.filter(e=>!(String(e.id)===String(lastDeletedEvent.id)&&e.deletedAt===lastDeletedEvent.deletedAt));lastDeletedEvent=recycleBin.length?recycleBin[recycleBin.length-1]:null;persistProjectCache();$('undoDeleteBtn').style.display=lastDeletedEvent?'inline-flex':'none';persistEvents();updateRecycleCount();render();toast('排期已恢复');
+  recycleBin=recycleBin.filter(e=>!(String(e.id)===String(lastDeletedEvent.id)&&e.deletedAt===lastDeletedEvent.deletedAt));lastDeletedEvent=recycleBin.length?recycleBin[recycleBin.length-1]:null;localStorage.setItem('hr_planner_recycle_bin_global',JSON.stringify(recycleBin));$('undoDeleteBtn').style.display=lastDeletedEvent?'inline-flex':'none';persistEvents();updateRecycleCount();render();toast('排期已恢复');
 }
 
 function updateRecycleCount(){const el=$('recycleCount');if(el)el.textContent=recycleBin.length?'('+recycleBin.length+')':'';}
 function openRecycleBin(){renderRecycleBin();$('recycleModal').style.display='flex';}
 function closeRecycleBin(){$('recycleModal').style.display='none';}
 function renderRecycleBin(){const box=$('recycleList');if(!recycleBin.length){box.innerHTML='<div class="recycle-empty">回收站为空</div>';return;}box.innerHTML=recycleBin.slice().reverse().map((e,i)=>{const idx=recycleBin.length-1-i;return `<div class="recycle-row"><div class="recycle-title" title="${e.title}">${e.title}</div><div>${e.start||''}</div><div>${e.team||''}</div><button onclick="restoreFromRecycle(${idx})">恢复</button></div>`;}).join('');}
-function restoreFromRecycle(i){const src=recycleBin[i];if(!src)return;const restored={...src};delete restored.deletedAt;if(events.some(e=>String(e.id)===String(restored.id)))restored.id=Date.now();events.push(restored);recycleBin.splice(i,1);persistProjectCache();lastDeletedEvent=recycleBin.length?recycleBin[recycleBin.length-1]:null;persistEvents();updateRecycleCount();renderRecycleBin();render();toast('排期已恢复');}
-function emptyRecycleBin(){if(!recycleBin.length)return;if(!confirm('确定永久清空回收站吗？此操作无法撤销。'))return;recycleBin=[];lastDeletedEvent=null;persistProjectCache();$('undoDeleteBtn').style.display='none';updateRecycleCount();renderRecycleBin();toast('回收站已清空');}
+function restoreFromRecycle(i){const src=recycleBin[i];if(!src)return;const restored={...src};delete restored.deletedAt;if(events.some(e=>String(e.id)===String(restored.id)))restored.id=Date.now();events.push(restored);recycleBin.splice(i,1);localStorage.setItem('hr_planner_recycle_bin_global',JSON.stringify(recycleBin));lastDeletedEvent=recycleBin.length?recycleBin[recycleBin.length-1]:null;persistEvents();updateRecycleCount();renderRecycleBin();render();toast('排期已恢复');}
+function emptyRecycleBin(){if(!recycleBin.length)return;if(!confirm('确定永久清空回收站吗？此操作无法撤销。'))return;recycleBin=[];lastDeletedEvent=null;localStorage.setItem('hr_planner_recycle_bin_global','[]');$('undoDeleteBtn').style.display='none';updateRecycleCount();renderRecycleBin();toast('回收站已清空');}
 function openSettings() {
   $('cfgAppTitle').value = appTitle;
   $('cfgAppSubtitle').value = appSubtitle;
@@ -1322,7 +1273,7 @@ function saveSettings() {
   const keys=proposed.map(t=>t.name.toLowerCase());if(new Set(keys).size!==keys.length)return alert('团队名称不能重复。');
   proposed.forEach(t=>{if(t.oldName!==t.name){events.forEach(e=>{if(e.team===t.oldName)e.team=t.name});recycleBin.forEach(e=>{if(e.team===t.oldName)e.team=t.name});}});
   teams=proposed.map(({oldName,...t})=>({...t,light:isColorLight(t.color)}));
-  persistProjectCache();
+  localStorage.setItem('hr_planner_title_global',appTitle);localStorage.setItem('hr_planner_subtitle_global',appSubtitle);localStorage.setItem('hr_planner_logo_global',appLogo);localStorage.setItem('hr_planner_logo_type_global',appLogoType);localStorage.setItem('hr_planner_show_lunar_global',showLunar);localStorage.setItem('hr_planner_show_weekend_global',showWeekend);localStorage.setItem('hr_planner_show_holidays_global',showHolidays);localStorage.setItem('hr_planner_show_adjusted_global',showAdjusted);localStorage.setItem('hr_planner_recycle_bin_global',JSON.stringify(recycleBin));
   saveTeamsToLocal();persistEvents();closeSettings();renderTeamToggles();renderLegend();render();toast('设置已保存；团队重命名已同步全部排期。');
 }
 
@@ -1336,7 +1287,7 @@ function applyBranding() {
     subtitleEl.textContent = appSubtitle || '';
     subtitleEl.style.display = appSubtitle ? 'block' : 'none';
   }
-  document.title = (appTitle || 'Team Planner') + ' v1.19 Build 01B';
+  document.title = (appTitle || 'Team Planner') + ' V18';
   if (!imageEl || !fallbackEl) return;
   if (appLogo) {
     imageEl.onload = () => { imageEl.style.display='block'; fallbackEl.style.display='none'; };
@@ -1371,8 +1322,23 @@ function applyLogoUrlFromSettings(){
   appLogo=raw;appLogoType='url';persistBranding();applyBranding();updateLogoStatus();toast('外部 Logo 链接已应用');
 }
 function clearCustomLogo(){appLogo='';appLogoType='';if($('cfgLogoUrl'))$('cfgLogoUrl').value='';persistBranding();applyBranding();updateLogoStatus();toast('已恢复默认 Logo');}
-function persistBranding(){persistProjectCache();}
-function persistAllSettings(){persistProjectCache();}
+function persistBranding(){
+  localStorage.setItem('hr_planner_title_global',appTitle);
+  localStorage.setItem('hr_planner_subtitle_global',appSubtitle);
+  localStorage.setItem('hr_planner_logo_global',appLogo);
+  localStorage.setItem('hr_planner_logo_type_global',appLogoType);
+}
+function persistAllSettings(){
+  persistBranding();
+  localStorage.setItem('hr_planner_colwidth_global',String(currentColWidth));
+  localStorage.setItem('hr_planner_fontsize_global',String(currentFontSize));
+  localStorage.setItem('hr_planner_wrapmode_global',String(isWrapMode));
+  localStorage.setItem('hr_planner_boldmode_global',String(isBoldMode));
+  localStorage.setItem('hr_planner_show_lunar_global',String(showLunar));
+  localStorage.setItem('hr_planner_show_weekend_global',String(showWeekend));
+  localStorage.setItem('hr_planner_show_holidays_global',String(showHolidays));
+  localStorage.setItem('hr_planner_show_adjusted_global',String(showAdjusted));
+}
 function clearAllPlannerData(){
   const first=confirm('此操作将永久清除全部排期、团队设置、回收站、标题、Logo 和显示偏好。是否继续？');
   if(!first)return;
@@ -1400,37 +1366,37 @@ function persistEvents() {
   localStorage.setItem('hr_planner_events_global', JSON.stringify(events));
 }
 
-function safeProjectFileName(value){return String(value||'Team-Planner-Project').trim().replace(/[\/:*?"<>|]+/g,'-').replace(/\s+/g,' ').slice(0,80)||'Team-Planner-Project';}
-function exportData(){
-  persistProjectCache();
-  const payload=JSON.parse(JSON.stringify(currentProject));payload.metadata.exportedAt=new Date().toISOString();
-  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);a.download=safeProjectFileName(payload.metadata.projectName||appTitle)+'.tplanner.json';a.click();URL.revokeObjectURL(a.href);toast('项目文件已导出');
+function exportData() {
+  const payload={schemaVersion:'TeamPlannerFullConfig/18.0',exportedAt:new Date().toISOString(),title:appTitle,subtitle:appSubtitle,logo:appLogo,logoType:appLogoType,teams:teams.map(({name,color,light,visible})=>({name,color,light,visible})),events:events.map(e=>({...e,team:normalizeTeamName(e.team,teams)})),colWidth:currentColWidth,fontSize:currentFontSize,isWrapMode,isBoldMode,showLunar,showWeekend,showHolidays,showAdjusted,version:'18.0'};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);const now=new Date(),ymd=now.getFullYear()+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0'),key='hr_planner_export_seq_'+ymd,seq=Number(localStorage.getItem(key)||0)+1;localStorage.setItem(key,String(seq));a.download='HRPlannerFullConfig'+year+ymd+String(seq).padStart(2,'0')+'.JSON';a.click();URL.revokeObjectURL(a.href);toast('已导出 V18 全量配置');
 }
+
 function openImportFilePicker() {
   const input = $('jsonFileInput');
   input.value = '';
   input.click();
 }
-function validateImportedData(data){
-  if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('文件根节点必须是 JSON 对象');
-  const source=data.schemaVersion==='TeamPlannerProject/1.19'||data.metadata?data:{...data,branding:{title:data.title,subtitle:data.subtitle,logo:data.logo,logoType:data.logoType},settings:data};
-  if(!Array.isArray(source.events))throw new Error('缺少 events 数组');
-  if(source.teams!==undefined&&!Array.isArray(source.teams))throw new Error('teams 必须是数组');
-  const target=migrateTeams(source.teams||teams),names=new Set(target.map(t=>t.name.toLowerCase())),ids=new Set();
-  source.events.forEach((e,i)=>{const row=i+1;if(!e||typeof e!=='object')throw new Error(`第 ${row} 项排期不是对象`);if(e.id===undefined||e.id===null||e.id==='')throw new Error(`第 ${row} 项缺少 id`);if(ids.has(String(e.id)))throw new Error(`发现重复 id：${e.id}`);ids.add(String(e.id));if(typeof e.title!=='string'||!e.title.trim())throw new Error(`第 ${row} 项缺少有效标题`);const team=normalizeTeamName(e.team,target);if(!names.has(team.toLowerCase()))throw new Error(`第 ${row} 项团队 ${e.team||'(空)'} 不存在`);if(!/^\d{4}-\d{2}-\d{2}$/.test(e.start||'')||!/^\d{4}-\d{2}-\d{2}$/.test(e.end||''))throw new Error(`第 ${row} 项日期格式必须为 YYYY-MM-DD`);if(e.end<e.start)throw new Error(`第 ${row} 项结束日期早于开始日期`);});return true;
-}
-async function importJSONFile(ev){
-  const file=ev.target.files&&ev.target.files[0];if(!file)return;
-  const lower=file.name.toLowerCase();if(!(lower.endsWith('.json')||lower.endsWith('.tplanner.json')))return alert('导入失败：请选择 .json 或 .tplanner.json 文件');if(file.size>5*1024*1024)return alert('导入失败：项目文件不能超过 5 MB');
-  const backup=JSON.parse(JSON.stringify(currentProject));
-  try{
-    const raw=JSON.parse(await file.text());validateImportedData(raw);const imported=normalizeProject(raw);validateImportedData(imported);
-    currentProject=imported;teams=currentProject.teams;events=currentProject.events;recycleBin=currentProject.recycleBin;lastDeletedEvent=recycleBin.length?recycleBin[recycleBin.length-1]:null;
-    appTitle=currentProject.branding.title;appSubtitle=currentProject.branding.subtitle;appLogo=currentProject.branding.logo;appLogoType=currentProject.branding.logoType;
-    currentColWidth=currentProject.settings.colWidth;currentFontSize=currentProject.settings.fontSize;isWrapMode=currentProject.settings.isWrapMode;isBoldMode=currentProject.settings.isBoldMode;showLunar=currentProject.settings.showLunar;showWeekend=currentProject.settings.showWeekend;showHolidays=currentProject.settings.showHolidays;showAdjusted=currentProject.settings.showAdjusted;
-    persistProjectCache();applyBranding();applyColWidth(currentColWidth);applyFontSize(currentFontSize);updateWrapBtnUI();updateBoldBtnUI();updateRecycleCount();closeSettings();renderTeamToggles();renderLegend();render();toast(`项目导入成功：${events.length} 项排期`);
-  }catch(err){currentProject=normalizeProject(backup);teams=currentProject.teams;events=currentProject.events;recycleBin=currentProject.recycleBin;appTitle=currentProject.branding.title;appSubtitle=currentProject.branding.subtitle;appLogo=currentProject.branding.logo;appLogoType=currentProject.branding.logoType;alert(`导入失败：${err.message||'项目文件无效'}\n原数据未被修改。`);}
+function validateImportedData(data){if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('文件根节点必须是JSON对象');if(!Array.isArray(data.events))throw new Error('缺少events数组');if(data.teams!==undefined&&!Array.isArray(data.teams))throw new Error('teams必须是数组');const target=migrateTeams(data.teams||teams),names=new Set(target.map(t=>t.name.toLowerCase())),ids=new Set();data.events.forEach((e,i)=>{const row=i+1;if(!e||typeof e!=='object')throw new Error(`第 ${row} 项排期不是对象`);if(e.id===undefined||e.id===null||e.id==='')throw new Error(`第 ${row} 项缺少id`);if(ids.has(String(e.id)))throw new Error(`发现重复id：${e.id}`);ids.add(String(e.id));if(typeof e.title!=='string'||!e.title.trim())throw new Error(`第 ${row} 项缺少有效标题`);const team=normalizeTeamName(e.team,target);if(!names.has(team.toLowerCase()))throw new Error(`第 ${row} 项团队 ${e.team||'(空)'} 不存在`);if(!/^\d{4}-\d{2}-\d{2}$/.test(e.start||'')||!/^\d{4}-\d{2}-\d{2}$/.test(e.end||''))throw new Error(`第 ${row} 项日期格式必须为YYYY-MM-DD`);if(e.end<e.start)throw new Error(`第 ${row} 项结束日期早于开始日期`);});return true;}
+async function importJSONFile(ev) {
+  const file=ev.target.files&&ev.target.files[0];if(!file)return;if(!file.name.toLowerCase().endsWith('.json'))return alert('导入失败：请选择.json文件');if(file.size>5*1024*1024)return alert('导入失败：JSON文件不能超过5MB');
+  try{const data=JSON.parse(await file.text());validateImportedData(data);const targetTeams=migrateTeams(data.teams||teams),normalizedEvents=data.events.map(e=>({...e,title:e.title.trim(),team:normalizeTeamName(e.team,targetTeams),owner:typeof e.owner==='string'?e.owner.trim():'',location:typeof e.location==='string'?e.location.trim():'',notes:typeof e.notes==='string'?e.notes.trim():'',status:e.status==='confirmed'?'confirmed':'planned'}));validateImportedData({...data,teams:targetTeams,events:normalizedEvents});
+    data.events.forEach((src,i)=>{const out=normalizedEvents[i];if(String(src.id)!==String(out.id)||src.title.trim()!==out.title||src.start!==out.start||src.end!==out.end)throw new Error(`第 ${i+1} 项标准化一致性校验失败`);});
+    const backup={events:JSON.parse(JSON.stringify(events)),teams:JSON.parse(JSON.stringify(teams)),title:appTitle,subtitle:appSubtitle,logo:appLogo,logoType:appLogoType};try{
+      events=normalizedEvents;teams=targetTeams;
+      if(typeof data.title==='string'&&data.title.trim())appTitle=data.title.trim();
+      if(typeof data.subtitle==='string')appSubtitle=data.subtitle.trim();
+      if(typeof data.logo==='string'){appLogo=data.logo;appLogoType=data.logoType==='file'?'file':(data.logo?'url':'');}
+      if(Number.isFinite(Number(data.colWidth)))currentColWidth=Math.min(80,Math.max(34,Number(data.colWidth)));
+      if(Number.isFinite(Number(data.fontSize)))currentFontSize=Math.min(14,Math.max(9,Number(data.fontSize)));
+      if(typeof data.isWrapMode==='boolean')isWrapMode=data.isWrapMode;
+      if(typeof data.isBoldMode==='boolean')isBoldMode=data.isBoldMode;
+      if(typeof data.showLunar==='boolean')showLunar=data.showLunar;
+      if(typeof data.showWeekend==='boolean')showWeekend=data.showWeekend;
+      if(typeof data.showHolidays==='boolean')showHolidays=data.showHolidays;
+      if(typeof data.showAdjusted==='boolean')showAdjusted=data.showAdjusted;
+      persistEvents();saveTeamsToLocal();persistAllSettings();applyBranding();applyColWidth(currentColWidth);applyFontSize(currentFontSize);updateWrapBtnUI();updateBoldBtnUI();closeSettings();renderTeamToggles();renderLegend();render();toast(`JSON导入成功：${events.length}项排期`);
+    }catch(err){events=backup.events;teams=backup.teams;appTitle=backup.title;appSubtitle=backup.subtitle;appLogo=backup.logo;appLogoType=backup.logoType;persistEvents();saveTeamsToLocal();applyBranding();throw err;}}
+  catch(err){alert(`导入失败：${err.message||'JSON文件无效'}\n原数据未被修改。`);}
 }
 function addDaysToPlannerDate(dateText,days){
   const parts=String(dateText||'').split('-').map(Number);
@@ -1482,194 +1448,6 @@ function toast(msg) {
 $('modalBack').addEventListener('click', e => { if (e.target === $('modalBack')) closeModal(); });
 $('settingsModal').addEventListener('click', e => { if (e.target === $('settingsModal')) closeSettings(); });
 $('recycleModal').addEventListener('click',e=>{if(e.target===$('recycleModal'))closeRecycleBin();});
-
-
-/* RECOVERY_MANAGER_BUILD_01B */
-const RECOVERY_KEY='hr_planner_recovery_v119';
-const RECOVERY_META_KEY='hr_planner_recovery_meta_v119';
-const SNAPSHOT_PREFIX='hr_planner_backup_v119_';
-const SNAPSHOT_COUNT=5;
-const SNAPSHOT_INTERVAL_MS=10*60*1000;
-const RECOVERY_DEBOUNCE_MS=1200;
-const EXPORT_REMINDER_CHANGES=20;
-const EXPORT_REMINDER_MS=24*60*60*1000;
-let recoverySaveTimer=null;
-let recoveryDirty=false;
-let recoveryChangeCount=0;
-let lastSnapshotAt=0;
-let suppressRecoveryTracking=false;
-
-function recoveryNow(){return new Date().toISOString();}
-function recoveryClone(value){return JSON.parse(JSON.stringify(value));}
-function recoveryMeta(){
-  try{return JSON.parse(localStorage.getItem(RECOVERY_META_KEY)||'{}')||{};}catch(e){return {};}
-}
-function writeRecoveryMeta(patch){
-  const next={...recoveryMeta(),...patch};
-  localStorage.setItem(RECOVERY_META_KEY,JSON.stringify(next));
-  return next;
-}
-function recoveryProjectName(project=currentProject){
-  return project?.metadata?.projectName||project?.branding?.title||'Team Planner Project';
-}
-function recoveryTimeText(value){
-  if(!value)return '未知时间';
-  const d=new Date(value);return Number.isNaN(d.getTime())?String(value):d.toLocaleString('zh-CN',{hour12:false});
-}
-function updateRecoveryStatus(mode='saved',text='已建立恢复点'){
-  const dot=document.getElementById('recoveryDot');
-  const label=document.getElementById('recoveryStatusText');
-  if(dot){dot.className='recovery-dot'+(mode==='dirty'?' dirty':mode==='warning'?' warning':'');}
-  if(label)label.textContent=text;
-}
-function buildRecoveryEnvelope(reason='change'){
-  syncProjectModel();
-  return {format:'TeamPlannerRecovery/1.19',savedAt:recoveryNow(),reason,project:recoveryClone(currentProject)};
-}
-function writeRecoveryCache(reason='change'){
-  if(suppressRecoveryTracking)return;
-  try{
-    const envelope=buildRecoveryEnvelope(reason);
-    localStorage.setItem(RECOVERY_KEY,JSON.stringify(envelope));
-    localStorage.setItem(PROJECT_CACHE_KEY,JSON.stringify(envelope.project));
-    recoveryDirty=false;
-    writeRecoveryMeta({lastRecoveryAt:envelope.savedAt,changeCount:recoveryChangeCount});
-    updateRecoveryStatus('saved','恢复点 '+new Date(envelope.savedAt).toLocaleTimeString('zh-CN',{hour12:false}));
-    maybeCreateSnapshot(envelope);
-    evaluateBackupReminder();
-  }catch(err){
-    updateRecoveryStatus('warning','恢复缓存写入失败');
-    console.error('Recovery save failed',err);
-  }
-}
-function scheduleRecoverySave(reason='change'){
-  if(suppressRecoveryTracking)return;
-  recoveryDirty=true;recoveryChangeCount+=1;
-  updateRecoveryStatus('dirty','存在未保存修改');
-  clearTimeout(recoverySaveTimer);
-  recoverySaveTimer=setTimeout(()=>writeRecoveryCache(reason),RECOVERY_DEBOUNCE_MS);
-}
-function createSnapshot(envelope=buildRecoveryEnvelope('snapshot')){
-  const snapshots=loadSnapshots();
-  const entry={format:'TeamPlannerSnapshot/1.19',savedAt:envelope.savedAt||recoveryNow(),project:recoveryClone(envelope.project)};
-  snapshots.unshift(entry);
-  snapshots.slice(0,SNAPSHOT_COUNT).forEach((item,index)=>localStorage.setItem(SNAPSHOT_PREFIX+(index+1),JSON.stringify(item)));
-  for(let i=snapshots.length+1;i<=SNAPSHOT_COUNT;i++)localStorage.removeItem(SNAPSHOT_PREFIX+i);
-  lastSnapshotAt=Date.now();
-  writeRecoveryMeta({lastSnapshotAt:entry.savedAt});
-}
-function maybeCreateSnapshot(envelope){
-  const meta=recoveryMeta();
-  const previous=Date.parse(meta.lastSnapshotAt||0)||lastSnapshotAt||0;
-  if(Date.now()-previous>=SNAPSHOT_INTERVAL_MS)createSnapshot(envelope);
-}
-function loadSnapshots(){
-  const list=[];
-  for(let i=1;i<=SNAPSHOT_COUNT;i++){
-    try{const value=JSON.parse(localStorage.getItem(SNAPSHOT_PREFIX+i)||'null');if(value?.project)list.push(value);}catch(e){}
-  }
-  return list.sort((a,b)=>Date.parse(b.savedAt||0)-Date.parse(a.savedAt||0));
-}
-function readRecoveryEnvelope(){
-  const raw=localStorage.getItem(RECOVERY_KEY);
-  if(!raw)return {state:'missing'};
-  try{
-    const value=JSON.parse(raw);
-    if(!value?.project)throw new Error('恢复数据缺少 project');
-    validateImportedData(value.project);
-    return {state:'valid',value};
-  }catch(error){return {state:'corrupt',error};}
-}
-function applyRecoveredProject(project,sourceLabel='恢复点'){
-  suppressRecoveryTracking=true;
-  try{
-    const restored=normalizeProject(recoveryClone(project));
-    validateImportedData(restored);
-    currentProject=restored;teams=restored.teams;events=restored.events;recycleBin=restored.recycleBin||[];
-    lastDeletedEvent=recycleBin.length?recycleBin[recycleBin.length-1]:null;
-    appTitle=restored.branding.title;appSubtitle=restored.branding.subtitle;appLogo=restored.branding.logo;appLogoType=restored.branding.logoType;
-    currentColWidth=restored.settings.colWidth;currentFontSize=restored.settings.fontSize;isWrapMode=restored.settings.isWrapMode;isBoldMode=restored.settings.isBoldMode;
-    showLunar=restored.settings.showLunar;showWeekend=restored.settings.showWeekend;showHolidays=restored.settings.showHolidays;showAdjusted=restored.settings.showAdjusted;
-    applyBranding();applyColWidth(currentColWidth);applyFontSize(currentFontSize);updateWrapBtnUI();updateBoldBtnUI();updateRecycleCount();renderTeamToggles();renderLegend();render();
-    localStorage.setItem(PROJECT_CACHE_KEY,JSON.stringify(currentProject));
-  }finally{suppressRecoveryTracking=false;}
-  writeRecoveryCache('restored');closeRecoveryPanel();toast('已从'+sourceLabel+'恢复项目');
-}
-function openRecoveryPanel(title,message,items){
-  document.getElementById('recoveryPanelTitle').textContent=title;
-  document.getElementById('recoveryPanelMessage').textContent=message;
-  const list=document.getElementById('recoveryList');list.innerHTML='';
-  items.forEach(item=>{
-    const row=document.createElement('div');row.className='recovery-item';
-    const main=document.createElement('div');main.className='recovery-item-main';
-    main.innerHTML='<div class="recovery-item-title"></div><div class="recovery-item-meta"></div>';
-    main.querySelector('.recovery-item-title').textContent=item.title;
-    main.querySelector('.recovery-item-meta').textContent=item.meta;
-    const button=document.createElement('button');button.className='primary';button.textContent='恢复';button.onclick=item.onRestore;
-    row.append(main,button);list.appendChild(row);
-  });
-  document.getElementById('recoveryPanel').style.display='flex';
-}
-function closeRecoveryPanel(){document.getElementById('recoveryPanel').style.display='none';}
-function detectRecoveryAtStartup(){
-  const recovery=readRecoveryEnvelope();
-  const snapshots=loadSnapshots();
-  const currentModified=Date.parse(currentProject?.metadata?.modifiedAt||0)||0;
-  if(recovery.state==='valid'){
-    const recoveryModified=Date.parse(recovery.value.project?.metadata?.modifiedAt||recovery.value.savedAt||0)||0;
-    if(recoveryModified>currentModified+1000){
-      openRecoveryPanel('发现较新的恢复数据','检测到比当前项目更新的自动恢复点。', [{title:recoveryProjectName(recovery.value.project),meta:'恢复点：'+recoveryTimeText(recovery.value.savedAt),onRestore:()=>applyRecoveredProject(recovery.value.project,'自动恢复点')}]);
-      return;
-    }
-  }
-  if(recovery.state==='corrupt'&&snapshots.length){
-    openRecoveryPanel('自动恢复数据异常','自动恢复缓存无法读取，可从最近的轮转快照恢复。',snapshots.map((s,i)=>({title:recoveryProjectName(s.project),meta:'快照 '+(i+1)+'：'+recoveryTimeText(s.savedAt),onRestore:()=>applyRecoveredProject(s.project,'快照')})));
-  }else if(recovery.state==='corrupt'){
-    updateRecoveryStatus('warning','恢复缓存损坏');
-  }
-}
-function evaluateBackupReminder(){
-  const meta=recoveryMeta();
-  const lastExport=Date.parse(meta.lastExportAt||0)||0;
-  const dueByChanges=recoveryChangeCount>=EXPORT_REMINDER_CHANGES;
-  const dueByTime=!lastExport||Date.now()-lastExport>=EXPORT_REMINDER_MS;
-  const dismissedUntil=Date.parse(meta.reminderDismissedUntil||0)||0;
-  const banner=document.getElementById('backupReminderBanner');
-  if(!banner)return;
-  const shouldShow=(dueByChanges||dueByTime)&&Date.now()>dismissedUntil;
-  banner.classList.toggle('show',shouldShow);
-  if(shouldShow){
-    document.getElementById('backupReminderText').textContent=dueByChanges?'已有较多修改尚未导出项目文件，建议立即备份。':'项目超过 1 天未导出备份，建议立即保存 .tplanner.json。';
-  }
-}
-function dismissBackupReminder(){
-  writeRecoveryMeta({reminderDismissedUntil:new Date(Date.now()+4*60*60*1000).toISOString()});
-  document.getElementById('backupReminderBanner')?.classList.remove('show');
-}
-function recordSuccessfulExport(){
-  recoveryChangeCount=0;
-  writeRecoveryMeta({lastExportAt:recoveryNow(),changeCount:0,reminderDismissedUntil:null});
-  document.getElementById('backupReminderBanner')?.classList.remove('show');
-}
-function flushRecoveryBeforeExit(){
-  if(recoveryDirty){clearTimeout(recoverySaveTimer);writeRecoveryCache('page-exit');}
-}
-
-const originalPersistProjectCache=persistProjectCache;
-persistProjectCache=function(){scheduleRecoverySave('project-change');};
-saveTeamsToLocal=function(){scheduleRecoverySave('team-change');};
-persistEvents=function(){scheduleRecoverySave('event-change');};
-persistBranding=function(){scheduleRecoverySave('branding-change');};
-persistAllSettings=function(){scheduleRecoverySave('settings-change');};
-const originalExportData=exportData;
-exportData=function(){
-  flushRecoveryBeforeExit();
-  originalExportData();
-  recordSuccessfulExport();
-};
-window.addEventListener('beforeunload',flushRecoveryBeforeExit);
-setInterval(()=>{if(recoveryDirty)writeRecoveryCache('interval');else maybeCreateSnapshot(buildRecoveryEnvelope('scheduled-snapshot'));},SNAPSHOT_INTERVAL_MS);
-setTimeout(()=>{const meta=recoveryMeta();recoveryChangeCount=Number(meta.changeCount)||0;detectRecoveryAtStartup();evaluateBackupReminder();if(!localStorage.getItem(RECOVERY_KEY))writeRecoveryCache('initial');},0);
 
 init();
 </script>
