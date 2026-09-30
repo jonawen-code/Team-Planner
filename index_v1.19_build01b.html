@@ -1362,8 +1362,7 @@ window.addEventListener('beforeunload',flushRecoveryBeforeExit);
 setInterval(()=>{if(recoveryDirty)writeRecoveryCache('interval');else maybeCreateSnapshot(buildRecoveryEnvelope('scheduled-snapshot'));},SNAPSHOT_INTERVAL_MS);
 setTimeout(()=>{const meta=recoveryMeta();recoveryChangeCount=Number(meta.changeCount)||0;detectRecoveryAtStartup();evaluateBackupReminder();if(!localStorage.getItem(RECOVERY_KEY))writeRecoveryCache('initial');},0);
 
-    init();
-    <!-- END INLINE SCRIPT MOVED -->
+    <!-- INLINE SCRIPT 已完全迁移至 app.js；页面中不应包含任何裸露的脚本文本 -->
 <script src="app.js" defer></script>
 </body>
 </html>
