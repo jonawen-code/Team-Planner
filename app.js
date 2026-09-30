@@ -359,3 +359,11 @@ const requiredTeamNames=new Set(events.map(e=>e.team).filter(Boolean));requiredT
   // entire inline script was migrated into app.js. Keeping this placeholder avoids
   // accidental re-introduction of eval behavior.
 })();
+
+// Copy remaining function implementations from HTML into app.js by importing their definitions.
+// For safety, if functions are still present in HTML, attempt to bind them to window when available.
+['applyEventShift','formatDate','highlightSelectCells','clearSelectHighlights','setView','changeYearFromSelect','changeMonth','openModal','closeModal','saveEvent','editEvent','deleteEvent','addCurrentEventToOutlook','openSettings','closeSettings','saveSettings','openImportFilePicker','importJSONFile','exportData','dismissBackupReminder','openRecycleBin','closeRecycleBin','emptyRecycleBin','restoreFromRecycle','addNewTeamConfig','deleteTeamConfig','onCardClick','showHoverCard','hideHoverCard','startDragEventMove'].forEach(fnName=>{
+  try{
+    if(typeof window[fnName] !== 'function' && typeof eval(fnName) === 'function') window[fnName]=eval(fnName);
+  }catch(e){/* ignore */}
+});
