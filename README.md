@@ -1,36 +1,65 @@
 # Team Planner
 
-A lightweight, browser-based annual and monthly planning tool built as a single HTML file.
+> 一个纯前端的团队年度 / 月度排期看板，单文件即可运行，数据全部保存在浏览器本地。
 
-## Features
+![version](https://img.shields.io/badge/version-v1.19%20Build%2001E-blue)
+![license](https://img.shields.io/badge/license-MIT-green)
 
-- Yearly and monthly planning views
-- Drag-and-drop schedule adjustment
-- Team and color configuration
-- JSON data import and export
-- Browser LocalStorage persistence
-- Outlook calendar event creation
-- Holiday, weekend, and lunar calendar display options
-- No server or installation required
+---
 
-## Quick Start
+## ✨ 功能特性
 
-1. Download this repository.
-2. Open `index.html` in a modern browser.
-3. Create planning items directly, or import `sample-data.json` from **Settings > Data Maintenance**.
+### 排期管理
+- **年度总览 / 月度排期** 双视图切换
+- 拖拽卡片即可平移日期、跨团队移动
+- 在空白格按住拖选，快速新建排期
+- 支持 **Planned / Confirmed** 两种状态
+- 悬停气泡查看负责人、地点、备注等详情
 
-## Data and Privacy
+### 日历增强
+- 中国法定节假日高亮（内置 2026 / 2027 数据）
+- 调休工作日标记
+- 周末灰底
+- 农历显示（月度视图，可开关）
 
-Planner data is stored locally in the browser using LocalStorage. Data is not automatically uploaded to a server. Use the JSON export function to create backups or transfer data between browsers or devices.
+### 展示控制
+- 列宽、字号可微调
+- 粗体 / 正常字重切换
+- 单行省略 / 多行换行切换
+- 按团队显示开关
 
-Do not commit confidential or personal planning data to a public repository.
+### 多语言
+- **简体中文 / 繁體中文 / English** 三种界面语言
+- 语言偏好自动保存，导出项目时一并携带
 
-## Project Files
+### 数据安全
+- **自动恢复点**：每次修改 1.2 秒后自动保存
+- **5 份轮转快照**：每 10 分钟自动生成，旧快照自动淘汰
+- **回收站**：删除的排期可恢复，支持一键撤销
+- **导入校验**：导入前严格校验 id 唯一性、日期格式、团队归属
+- **备份提醒**：超过 1 天未导出 或 修改 20 次以上时提醒备份
 
-- `index.html`: Main application, followed is version
-- `sample-data.json`: Generic sample data for testing
-- `LICENSE`: MIT License
+### 导入导出
+- 导出为 `.tplanner.json`，文件名带时间戳，方便区分多次备份
+- 支持 `.json` / `.tplanner.json` 导入
+- 兼容旧版本数据，自动迁移
 
-## License
+### 系统设置
+- Office 风格的左侧标签 + 右侧内容布局
+- 基础配置 / 日历增强 / 职能团队 / 数据维护 / 版本更新 五大板块
+- 自定义标题、副标题、Logo（URL 或本地上传）
 
-This project is available under the MIT License. See `LICENSE` for details.
+---
+
+## 🚀 快速开始
+
+### 方式一：直接使用
+1. 下载 `index.html`（或最新的版本文件）
+2. 用浏览器打开
+3. 开始使用，数据自动保存到浏览器本地
+
+### 方式二：本地开发
+```bash
+git clone https://github.com/jonawen/Team-Planner.git
+cd Team-Planner
+# 直接用浏览器打开 index.html 即可，无需构建

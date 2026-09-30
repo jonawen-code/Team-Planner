@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Team Planner v1.19 Build 01E</title>
+<style>
+:root{
+  --red:#d50022;--red-dark:#b0001a;--ink:#1e293b;--muted:#64748b;--line:#cbd5e1;--bg:#f1f5f9;--panel:#fff;
+  --holiday-bg:#cbd5e1;
+  --weekend-bg:#e2e8f0;
+  --workday-bg:#ffffff;
+  --adjusted-workday:#fef3c7;
+  --col-w: 48px;
+  --label-w: 140px;
+  --item-font-size: 11px;
+}
+*{box-sizing:border-box} 
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink);background:var(--bg);user-select:none}
+
+header{height:64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;padding:0 24px;position:sticky;top:0;z-index:50}
+.logo-box{display:flex;align-items:center;height:36px}
+.logo-box img{height:32px;object-fit:contain}
+.header-title-box{margin-left:4px}
+.title{font-weight:800;font-size:18px;color:#0f172a}
+.subtitle{color:var(--muted);font-size:12px;margin-top:2px}
+.spacer{flex:1}
+
+button,select,input,textarea{font:inherit} 
+button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:6px 12px;cursor:pointer;font-weight:500;color:#334155;transition:all .15s}
+button:hover{background:#f8fafc;border-color:#94a3b8;color:#0f172a}
+.primary{background:var(--red);color:#fff;border-color:var(--red);font-weight:600}
+.primary:hover{background:var(--red-dark);border-color:var(--red-dark);color:#fff}
+.danger{color:#dc2626;border-color:#fecaca}
+.danger:hover{background:#fef2f2;border-color:#f87171}
+.icon-btn{padding:6px 10px;display:flex;align-items:center;gap:5px}
+
+.toolbar{background:#fff;padding:8px 24px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center;flex-wrap:wrap;position:sticky;top:64px;z-index:45}
+.seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;border-radius:0;padding:6px 14px}
+.seg button.active{background:#0f172a;color:#fff}
+.nav-year{display:flex;align-items:center;gap:6px;font-weight:800;font-size:16px}
+.nav-year button{padding:4px 9px}
+.year-select{padding:5px 28px 5px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;font-weight:800;color:#0f172a}
+.nav-month{display:flex;align-items:center;gap:6px;font-weight:700}
+.nav-month button{padding:4px 9px}
+#monthLabel{min-width:42px;text-align:center}
+.search{padding:6px 11px;border:1px solid var(--line);border-radius:6px;min-width:190px}
+.lang-select{padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:#fff;font-weight:600;color:#334155;font-size:12px;cursor:pointer}
+
+.ctrl-pill{display:flex;align-items:center;gap:4px;background:#f8fafc;padding:3px 8px;border-radius:6px;border:1px solid var(--line);font-size:12px}
+.ctrl-pill span{color:var(--muted);font-weight:600}
+.ctrl-btn{padding:2px 7px;font-size:11px;font-weight:700;line-height:1}
+.toggle-btn{padding:3px 9px;font-size:11px;font-weight:600;border-radius:4px;border:1px solid var(--line);background:#fff;cursor:pointer}
+.toggle-btn.active{background:#0f172a;color:#fff;border-color:#0f172a}
+
+main{padding:14px 24px 40px}
+
+.team-toggles-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;background:#fff;padding:8px 16px;border-radius:8px;border:1px solid var(--line)}
+.toggle-title{font-size:12px;font-weight:700;color:var(--muted);margin-right:4px}
+.team-pill-btn{
+  display:flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;
+  border:1px solid var(--line);background:#f8fafc;color:#64748b;cursor:pointer;transition:all .15s
+}
+.team-pill-btn.active{color:#fff;border-color:transparent}
+.team-pill-btn .check-icon{font-size:11px}
+
+.legend{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:10px;background:#fff;padding:7px 16px;border-radius:8px;border:1px solid var(--line);font-size:12px}
+.legend-item{display:flex;align-items:center;gap:6px;font-weight:500}
+.dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+.status-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;padding:2px 7px;border-radius:4px;background:#f8fafc;border:1px solid var(--line)}
+.status-box{width:14px;height:12px;border-radius:2px;background:#94a3b8}
+.hint{margin-left:auto;color:var(--muted);font-size:12px}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.03);overflow:hidden}
+.card-head{padding:10px 18px;display:flex;align-items:center;border-bottom:1px solid var(--line);background:#fafafa}
+.card-head h2{font-size:15px;margin:0;font-weight:700}
+.card-head small{color:var(--muted);margin-left:10px}
+
+.scroll{overflow:auto}
+.year-grid{display:grid;grid-template-columns:140px repeat(12,minmax(90px,1fr));min-width:1220px}
+.cell{min-height:72px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px;position:relative}
+.headcell{min-height:36px;background:#f1f5f9;font-weight:700;text-align:center;padding:9px 4px;position:sticky;top:0;z-index:4;color:#475569;font-size:13px}
+.teamcell{font-weight:700;font-size:13px;display:flex;align-items:center;gap:8px;background:#f8fafc;position:sticky;left:0;z-index:3;border-right:2px solid var(--line)}
+
+.event-pill{
+  color:#fff;border-radius:4px;padding:4px 7px;margin:3px 0;font-size:11px;line-height:1.3;
+  cursor:pointer;box-shadow:0 2px 6px rgba(15,23,42,.16);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  box-sizing:border-box;
+}
+.event-pill.light{color:#1e293b}
+.event-pill.status-confirmed{border-left:3px solid var(--confirmed-border) !important}
+.event-pill.status-planned{border-left:5px solid transparent !important}
+
+.month-wrap{overflow:auto;position:relative;background:#fff}
+.grid-calendar{
+  display: grid;
+  grid-template-columns: var(--label-w) repeat(var(--total-days), var(--col-w));
+  border-left: 1px solid var(--line);
+  border-top: 1px solid var(--line);
+  width: max-content;
+}
+.g-cell{border-right: 1px solid var(--line);border-bottom: 1px solid var(--line);display: flex;align-items: center;justify-content: center;position: relative;}
+.g-corner{grid-column: 1;grid-row: 1;position: sticky;left: 0;top: 0;z-index: 35;background: #e2e8f0;font-weight: 700;font-size: 13px;height: 76px;}
+.g-day-th{grid-row: 1;position: sticky;top: 0;z-index: 30;background: #f1f5f9;height: 76px;font-size: 11px;color: #475569;flex-direction: column;padding: 4px 2px;}
+.g-day-th b{display:block;font-size:14px;color:#0f172a}
+.g-day-th.weekend{background:var(--weekend-bg)}
+.g-day-th.holiday{background:var(--holiday-bg);color:#991b1b;font-weight:700}
+.g-day-th.workday-adjusted{background:var(--adjusted-workday);color:#92400e}
+.day-badge{font-size:10px;font-weight:700;line-height:1;margin-top:2px;display:block}
+
+.g-team-label{grid-column: 1;position: sticky;left: 0;z-index: 25;background: #f8fafc;font-weight: 700;font-size: 13px;padding: 0 12px;justify-content: flex-start;gap: 8px;border-right: 2px solid var(--line);}
+
+.g-day-bg{cursor: crosshair;background: #fff;height: 100%;}
+.g-day-bg.weekend{background:rgba(226,232,240,0.65)}
+.g-day-bg.holiday{background:rgba(203,213,225,0.95)}
+.g-day-bg.workday-adjusted{background:rgba(254,243,199,0.5)}
+.g-day-bg.drag-selecting{background:rgba(213,0,34,0.3) !important}
+.g-day-bg.drag-target-hover{background:rgba(59,130,246,0.35) !important}
+
+.g-event-card{
+  height: calc(100% - 8px);align-self: center;border-radius: 5px;color: #fff;font-size: var(--item-font-size);
+  display: flex;align-items: center;padding: 0 6px;margin-left: 1px;margin-right: 1px;
+  box-shadow: 0 2px 6px rgba(15,23,42,0.16);cursor: grab;z-index: 10;box-sizing: border-box;
+  margin-top: 4px;margin-bottom: 4px;transition: filter .15s, transform .1s;
+}
+.g-event-card:active{cursor:grabbing}
+.g-event-card:hover{filter:brightness(0.92);transform:translateY(-1px);box-shadow:0 3px 6px rgba(0,0,0,0.22);}
+.g-event-card.light{color:#1e293b}
+
+.g-event-card.status-confirmed{border-left:3px solid var(--confirmed-border) !important}
+.g-event-card.status-planned{border-left:5px solid transparent !important}
+
+.font-bold-mode{font-weight:700 !important}
+.font-normal-mode{font-weight:500 !important}
+
+.event-text.ellipsis-mode{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:left;}
+.event-text.wrap-mode{white-space:normal;word-break:normal;overflow-wrap:normal;hyphens:none;line-height:1.2;text-align:center;width:100%;}
+
+#hoverPopover{
+  position:fixed;display:none;z-index:999;background:#ffffff;color:#1e293b;border-radius:8px;
+  padding:12px 14px;box-shadow:0 12px 28px -4px rgba(0,0,0,0.18), 0 4px 12px -2px rgba(0,0,0,0.08);
+  border:1px solid #e2e8f0;border-left:4px solid var(--red);max-width:320px;min-width:180px;
+  pointer-events:none;transition:opacity .12s ease, transform .12s ease;opacity:0;transform:translateY(4px);
+}
+#hoverPopover.show{opacity:1;transform:translateY(0);}
+.popover-title{font-weight:700;font-size:13px;color:#0f172a;margin-bottom:6px;line-height:1.3;}
+.popover-meta{font-size:11px;color:#64748b;display:flex;flex-direction:column;gap:3px;}
+.popover-meta span b{color:#334155;font-weight:600}
+.popover-tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;width:fit-content;margin-top:4px}
+
+.modal-back{display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:99;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.modal{background:#fff;width:min(640px,94vw);max-height:90vh;border-radius:12px;padding:24px;overflow-y:auto;box-shadow:0 20px 25px -5px rgba(0,0,0,0.2)}
+.modal h3{margin:0 0 16px;font-size:18px;display:flex;align-items:center;gap:8px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1/-1}
+.field label{font-size:12px;font-weight:700;color:#475569}
+.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:13px}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:22px}
+
+.settings-section{margin-bottom:20px;border-bottom:1px solid var(--line);padding-bottom:16px}
+.settings-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.settings-title{font-weight:700;font-size:14px;color:#0f172a;margin-bottom:8px}
+.team-config-row{display:grid;grid-template-columns:1fr 60px 40px;gap:8px;align-items:center;margin-bottom:8px}
+.color-picker-wrapper{height:34px;display:flex;align-items:center}
+.color-picker-wrapper input{width:100%;height:100%;padding:0;border:1px solid var(--line);cursor:pointer;border-radius:4px}
+
+.toast{position:fixed;right:24px;bottom:24px;background:#0f172a;color:#fff;border-radius:7px;padding:12px 18px;font-size:13px;opacity:0;transform:translateY(10px);transition:.2s;z-index:200}
+.toast.show{opacity:1;transform:none}
+.footer-note{color:var(--muted);font-size:12px;margin-top:14px;text-align:right}
+.setting-check-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0}.lunar-label{font-size:9px;color:#7c3f00;line-height:1.05;margin-top:1px}
+
+.g-corner,.g-day-th{height:76px!important;min-height:76px!important;overflow:hidden}
+.g-day-th{justify-content:flex-start!important;gap:1px;line-height:1.05;padding:5px 2px!important}
+.g-day-th b{font-size:14px;line-height:16px}.g-day-th>span:not(.day-badge):not(.lunar-label){font-size:11px;line-height:13px}
+.day-badge{font-size:10px;line-height:12px;margin-top:1px}.lunar-label{display:block;font-size:9px;line-height:11px;margin-top:1px;white-space:nowrap}
+.g-event-card{position:relative!important;box-sizing:border-box!important;margin-left:2px!important;margin-right:2px!important;width:calc(100% - 4px)!important;padding:0!important;border-left:0!important;overflow:hidden!important}
+.g-event-card .event-text{box-sizing:border-box!important;width:100%!important;padding-left:6px!important;padding-right:6px!important;margin:0!important}
+.g-event-card.status-confirmed{border-left:0!important;box-shadow:inset 3px 0 0 var(--confirmed-border),0 2px 6px rgba(15,23,42,.16)!important}
+.g-event-card.status-planned{border-left:0!important;box-shadow:0 2px 6px rgba(15,23,42,.16)!important}
+.event-pill{position:relative!important;box-sizing:border-box!important;margin-left:2px!important;margin-right:2px!important;padding-left:6px!important;padding-right:6px!important;border-left:0!important;overflow:hidden!important}
+.event-pill.status-confirmed{border-left:0!important;box-shadow:inset 3px 0 0 var(--confirmed-border),0 2px 6px rgba(15,23,42,.16)!important}
+.event-pill.status-planned{border-left:0!important;box-shadow:0 2px 6px rgba(15,23,42,.16)!important}
+.modal{font-size:13px}.modal h3{font-size:18px!important;font-weight:700!important;color:#0f172a!important;line-height:1.3}.modal .field label,.modal .settings-title{font-size:13px!important}.modal input,.modal select,.modal textarea,.modal button,.modal .actions button{font-size:13px!important}
+.recycle-row{display:grid;grid-template-columns:1fr 110px 130px 80px;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}.recycle-title{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.recycle-empty{padding:28px;text-align:center;color:var(--muted)}
+
+.recovery-status{font-size:12px;color:#64748b;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.recovery-dot{width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block}
+.recovery-dot.dirty{background:#d97706}.recovery-dot.warning{background:#dc2626}
+.recovery-panel{position:fixed;inset:0;background:rgba(15,23,42,.48);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+.recovery-dialog{background:#fff;width:min(620px,96vw);max-height:88vh;overflow:auto;border-radius:12px;padding:22px;box-shadow:0 24px 60px rgba(15,23,42,.28)}
+.recovery-dialog h3{margin:0 0 8px}.recovery-dialog p{color:#64748b;line-height:1.55}
+.recovery-item{border:1px solid #e2e8f0;border-radius:8px;padding:11px 12px;margin:8px 0;display:flex;gap:12px;align-items:center}
+.recovery-item-main{flex:1}.recovery-item-title{font-weight:700}.recovery-item-meta{font-size:12px;color:#64748b;margin-top:3px}
+.recovery-banner{display:none;background:#fff7ed;border:1px solid #fdba74;color:#9a3412;padding:8px 14px;font-size:12px;align-items:center;gap:10px}
+.recovery-banner.show{display:flex}.recovery-banner button{margin-left:auto}
+
+.settings-modal{width:min(860px,96vw)!important;padding:0!important;overflow:hidden!important;display:flex;flex-direction:column;max-height:90vh}
+.settings-modal h3{margin:0!important;padding:20px 24px 16px;border-bottom:1px solid var(--line);font-size:18px!important;flex:none}
+.settings-layout{display:flex;flex:1;min-height:0}
+.settings-nav{width:170px;flex:none;background:#f8fafc;border-right:1px solid var(--line);padding:12px 0;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.settings-tab{text-align:left;background:transparent;border:0!important;border-left:3px solid transparent!important;border-radius:0!important;padding:10px 18px;font-size:13px;font-weight:500;color:#475569;cursor:pointer;transition:background .12s,color .12s}
+.settings-tab:hover{background:#eef2f7;color:#0f172a}
+.settings-tab.active{background:#fff;color:var(--red);font-weight:700;border-left-color:var(--red)!important}
+.settings-content{flex:1;padding:20px 24px;overflow-y:auto;min-width:0;display:grid}
+.settings-pane{grid-area:1 / 1;visibility:hidden;pointer-events:none}
+.settings-pane.active{visibility:visible;pointer-events:auto}
+.settings-pane .settings-title{margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--line);font-size:14px;font-weight:700;color:#0f172a}
+.settings-modal > .actions{flex:none;margin:0!important;padding:14px 24px;border-top:1px solid var(--line);background:#fafafa}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-box" id="appLogoBox">
+    <img id="appLogoImage" alt="Planner Logo" style="display:none" />
+    <span id="appLogoFallback" style="background:#2563eb;color:white;font-weight:800;padding:6px 12px;border-radius:4px">TP</span>
+  </div>
+  <div class="header-title-box">
+    <div class="title" id="appMainTitle">Team Planner</div>
+    <div class="subtitle" id="appSubtitle">Annual & Monthly Planning Board</div>
+  </div>
+  <div class="spacer"></div>
+  <div class="recovery-status" id="recoveryStatus">
+    <span class="recovery-dot" id="recoveryDot"></span>
+    <span id="recoveryStatusText" data-i18n="recovery_saved">已建立恢复点</span>
+  </div>
+  <button id="undoDeleteBtn" class="icon-btn" onclick="undoDelete()" style="display:none"><span data-i18n="undo_delete">↩ 撤销删除</span></button>
+  <button class="icon-btn" onclick="openSettings()"><span style="font-size:14px">⚙️</span> <span data-i18n="system_settings">系统设置</span></button>
+  <button class="primary" onclick="openModal()"><span data-i18n="new_event">＋ 新建计划</span></button>
+</header>
+
+<div class="toolbar">
+  <div class="seg">
+    <button id="yearBtn" onclick="setView('year')" data-i18n="view_year">年度总览</button>
+    <button id="monthBtn" class="active" onclick="setView('month')" data-i18n="view_month">月度排期</button>
+  </div>
+  <select id="yearSelect" class="year-select" onchange="changeYearFromSelect()"></select>
+  <div class="nav-month">
+    <button onclick="changeMonth(-1)" title="‹">‹</button>
+    <span id="monthLabel">9月</span>
+    <button onclick="changeMonth(1)" title="›">›</button>
+  </div>
+
+  <div class="ctrl-pill">
+    <span data-i18n="col_width">列宽:</span>
+    <button class="ctrl-btn" onclick="adjustColWidth(-4)">-</button>
+    <span id="colWidthDisplay" style="min-width:32px;text-align:center">48px</span>
+    <button class="ctrl-btn" onclick="adjustColWidth(4)">+</button>
+  </div>
+
+  <div class="ctrl-pill">
+    <span data-i18n="font_size">字号:</span>
+    <button class="ctrl-btn" onclick="adjustFontSize(-1)">A-</button>
+    <span id="fontSizeDisplay" style="min-width:28px;text-align:center">11px</span>
+    <button class="ctrl-btn" onclick="adjustFontSize(1)">A+</button>
+  </div>
+
+  <button id="boldToggleBtn" class="toggle-btn active" onclick="toggleBoldMode()" data-i18n="bold_on">粗体: 开</button>
+  <button id="wrapToggleBtn" class="toggle-btn" onclick="toggleWrapMode()" data-i18n="wrap_off">换行: 关 (省略)</button>
+
+  <input id="search" class="search" data-i18n-placeholder="search_placeholder" placeholder="搜索计划名称、地点、负责人……" oninput="render()" />
+  <div class="spacer"></div>
+</div>
+
+<div class="recovery-banner" id="backupReminderBanner">
+  <span id="backupReminderText" data-i18n="backup_reminder_default">建议导出项目文件，防止清理浏览器数据后无法恢复。</span>
+  <button type="button" onclick="exportData()" data-i18n="backup_now">立即备份</button>
+  <button type="button" onclick="dismissBackupReminder()" data-i18n="backup_later">稍后提醒</button>
+</div>
+<main>
+  <div class="team-toggles-bar" id="teamTogglesBar">
+    <span class="toggle-title" data-i18n="team_toggles_title">职能团队显示开关:</span>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <section class="card">
+    <div class="card-head">
+      <h2 id="viewTitle">2026 HR 年度总览</h2>
+      <small id="countText"></small>
+    </div>
+    <div id="board"></div>
+  </section>
+
+</main>
+
+<div id="hoverPopover">
+  <div class="popover-title" id="popTitle"></div>
+  <div class="popover-meta">
+    <span id="popTeam"></span>
+    <span id="popDate"></span>
+    <span id="popOwner"></span>
+    <span id="popLocation"></span>
+    <div id="popTag" class="popover-tag"></div>
+  </div>
+</div>
+
+<div class="modal-back" id="modalBack">
+  <div class="modal">
+    <h3 id="modalTitle" data-i18n="new_event_title">新建排期</h3>
+    <div class="form-grid">
+      <div class="field full"><label data-i18n="f_title">事项名称 *</label><input id="fTitle" /></div>
+      <div class="field"><label data-i18n="f_team">职能团队 *</label><select id="fTeam"></select></div>
+      <div class="field"><label data-i18n="f_owner">负责人 / 协同人员</label><input id="fOwner" /></div>
+      <div class="field"><label data-i18n="f_start">开始日期 *</label><input id="fStart" type="date" /></div>
+      <div class="field"><label data-i18n="f_end">结束日期 *</label><input id="fEnd" type="date" /></div>
+      <div class="field"><label data-i18n="f_status">状态</label>
+        <select id="fStatus">
+          <option value="planned" data-i18n="status_planned">Planned</option>
+          <option value="confirmed" data-i18n="status_confirmed">Confirmed</option>
+        </select>
+      </div>
+      <div class="field"><label data-i18n="f_location">地点 / 形式</label><input id="fLocation" /></div>
+      <div class="field full"><label data-i18n="f_notes">备注详细</label><textarea id="fNotes" rows="3"></textarea></div>
+    </div>
+    <div class="actions">
+      <button id="deleteBtn" class="danger" onclick="deleteEvent()" style="margin-right:auto;display:none" data-i18n="delete_event">删除此排期</button>
+      <button id="outlookBtn" onclick="addCurrentEventToOutlook()" style="display:none" data-i18n="add_outlook">📅 添加到 Outlook</button>
+      <button onclick="closeModal()" data-i18n="btn_cancel">取消</button>
+      <button class="primary" onclick="saveEvent()" data-i18n="btn_save">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-back" id="settingsModal">
+  <div class="modal settings-modal">
+    <h3 data-i18n="settings_title">⚙️ 系统设置中心</h3>
+    <div class="settings-layout">
+      <nav class="settings-nav">
+        <button type="button" class="settings-tab active" data-tab="basic" onclick="switchSettingsTab('basic')" data-i18n="tab_basic">基础配置</button>
+        <button type="button" class="settings-tab" data-tab="calendar" onclick="switchSettingsTab('calendar')" data-i18n="tab_calendar">日历增强</button>
+        <button type="button" class="settings-tab" data-tab="teams" onclick="switchSettingsTab('teams')" data-i18n="tab_teams">职能团队</button>
+        <button type="button" class="settings-tab" data-tab="data" onclick="switchSettingsTab('data')" data-i18n="tab_data">数据维护</button>
+        <button type="button" class="settings-tab" data-tab="about" onclick="switchSettingsTab('about')" data-i18n="tab_about">版本更新</button>
+      </nav>
+      <div class="settings-content">
+
+        <section class="settings-pane active" data-pane="basic">
+          <div class="settings-title" data-i18n="tab_basic">基础配置</div>
+          <div class="field full">
+            <label data-i18n="cfg_app_title">系统看板标题</label>
+            <input id="cfgAppTitle" value="Team Planner" />
+          </div>
+          <div class="field full" style="margin-top:12px">
+            <label data-i18n="cfg_app_subtitle">副标题</label>
+            <input id="cfgAppSubtitle" value="Annual & Monthly Planning Board" />
+          </div>
+          <div class="field full" style="margin-top:12px">
+            <label data-i18n="cfg_logo_url">Logo 外部图片链接</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input id="cfgLogoUrl" type="url" placeholder="https://example.com/logo.png" style="flex:1" />
+              <button type="button" onclick="applyLogoUrlFromSettings()" data-i18n="cfg_apply_logo_url">应用链接</button>
+            </div>
+          </div>
+          <div class="field full" style="margin-top:12px">
+            <label data-i18n="cfg_logo_upload">或上传本地 Logo（PNG / JPG / SVG / WebP，最大 1 MB）</label>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <button type="button" onclick="openLogoFilePicker()" data-i18n="cfg_pick_logo">选择本地图片</button>
+              <button type="button" onclick="clearCustomLogo()" data-i18n="cfg_reset_logo">恢复默认 Logo</button>
+              <span id="logoStatus" style="font-size:12px;color:var(--muted)" data-i18n="logo_status_default">当前使用默认 Logo</span>
+              <input id="logoFileInput" type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" style="display:none" onchange="handleLogoFile(event)" />
+            </div>
+          </div>
+          <div class="field full" style="margin-top:12px">
+            <label data-i18n="cfg_language">界面语言</label>
+            <select id="cfgLanguage" style="max-width:220px">
+              <option value="zh-CN">简体中文</option>
+              <option value="zh-TW">繁體中文</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+        </section>
+
+        <section class="settings-pane" data-pane="calendar">
+          <div class="settings-title" data-i18n="tab_calendar">日历增强配置</div>
+          <label class="setting-check-row"><span data-i18n="cfg_show_lunar">显示农历（月度视图）</span><input id="cfgShowLunar" type="checkbox" /></label>
+          <label class="setting-check-row"><span data-i18n="cfg_show_weekend">显示周末灰色背景</span><input id="cfgShowWeekend" type="checkbox" /></label>
+          <label class="setting-check-row"><span data-i18n="cfg_show_holidays">显示中国法定假日</span><input id="cfgShowHolidays" type="checkbox" /></label>
+          <label class="setting-check-row"><span data-i18n="cfg_show_adjusted">显示调休工作日</span><input id="cfgShowAdjusted" type="checkbox" /></label>
+        </section>
+
+        <section class="settings-pane" data-pane="teams">
+          <div class="settings-title" data-i18n="tab_teams_desc">职能团队管理（可重命名团队、调整色彩）</div>
+          <div id="teamConfigList"></div>
+          <button onclick="addNewTeamConfig()" style="margin-top:8px;font-size:12px" data-i18n="cfg_add_team">＋ 添加新职能团队</button>
+        </section>
+
+        <section class="settings-pane" data-pane="data">
+          <div class="settings-title" data-i18n="tab_data">数据维护</div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <button onclick="exportData()" data-i18n="btn_export">导出项目 (.tplanner.json)</button>
+            <button onclick="openImportFilePicker()" data-i18n="btn_import">导入项目 (.json / .tplanner.json)</button>
+            <button onclick="openRecycleBin()" data-i18n="btn_recycle">回收站</button>
+            <button class="danger" onclick="clearAllPlannerData()" data-i18n="btn_reset_all">全面清除数据 / 恢复初始状态</button>
+            <input id="jsonFileInput" type="file" accept="application/json,.json,.tplanner.json" style="display:none" onchange="importJSONFile(event)" />
+          </div>
+        </section>
+
+        <section class="settings-pane" data-pane="about">
+          <div class="settings-title" data-i18n="tab_about">版本更新</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7" data-i18n-html="about_text">
+            <b>v1.2</b>：支持简体中文 / 繁体中文 / English 三种界面语言切换。
+          </div>
+        </section>
+
+      </div>
+    </div>
+    <div class="actions">
+      <button onclick="closeSettings()" data-i18n="btn_cancel">取消</button>
+      <button class="primary" onclick="saveSettings()" data-i18n="btn_save_apply">保存并生效</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-back" id="recycleModal"><div class="modal" style="width:min(760px,94vw)"><h3 data-i18n="recycle_title">🗑️ 排期回收站</h3><div id="recycleList"></div><div class="actions"><button class="danger" onclick="emptyRecycleBin()" data-i18n="btn_empty_recycle">清空回收站</button><button class="primary" onclick="closeRecycleBin()" data-i18n="btn_close">关闭</button></div></div></div><div class="toast" id="toast"></div>
+<div class="recovery-panel" id="recoveryPanel">
+  <div class="recovery-dialog">
+    <h3 id="recoveryPanelTitle" data-i18n="recovery_center">恢复中心</h3>
+    <p id="recoveryPanelMessage"></p>
+    <div id="recoveryList"></div>
+    <div class="actions">
+      <button id="recoveryIgnoreBtn" onclick="closeRecoveryPanel()" data-i18n="recovery_ignore">继续使用当前数据</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== I18N ===================== */
+const I18N = {
+  'zh-CN': {
+    system_settings:'系统设置', new_event:'＋ 新建计划', undo_delete:'↩ 撤销删除',
+    recovery_saved:'已建立恢复点',
+    view_year:'年度总览', view_month:'月度排期',
+    col_width:'列宽:', font_size:'字号:',
+    bold_on:'粗体: 开', bold_off:'粗体: 关',
+    wrap_on:'换行: 开 (多行)', wrap_off:'换行: 关 (省略)',
+    search_placeholder:'搜索计划名称、地点、负责人……',
+    team_toggles_title:'职能团队显示开关:',
+    legend_holiday:'法定假日', legend_adjusted:'周末补班', legend_confirmed:'Confirmed', legend_planned:'Planned',
+    legend_hint:'年份下拉选择；月份箭头切换；按住卡片拖拽平移日期；空白格拖选新建',
+    year_view_title:'{year} HR 年度总览', month_view_title:'{year}年 {month}月排期', items_count:'{n} 项排期',
+    backup_reminder_default:'建议导出项目文件，防止清理浏览器数据后无法恢复。',
+    backup_now:'立即备份', backup_later:'稍后提醒',
+    new_event_title:'新建排期', edit_event_title:'编辑排期事项',
+    f_title:'事项名称 *', f_team:'职能团队 *', f_owner:'负责人 / 协同人员',
+    f_start:'开始日期 *', f_end:'结束日期 *', f_status:'状态',
+    f_location:'地点 / 形式', f_notes:'备注详细',
+    status_planned:'Planned', status_confirmed:'Confirmed',
+    delete_event:'删除此排期', add_outlook:'📅 添加到 Outlook',
+    btn_cancel:'取消', btn_save:'保存', btn_save_apply:'保存并生效', btn_close:'关闭',
+    btn_export:'导出项目 (.tplanner.json)', btn_import:'导入项目 (.json / .tplanner.json)',
+    btn_recycle:'回收站', btn_reset_all:'全面清除数据 / 恢复初始状态',
+    btn_empty_recycle:'清空回收站',
+    settings_title:'⚙️ 系统设置中心',
+    tab_basic:'基础配置', tab_calendar:'日历增强', tab_teams:'职能团队',
+    tab_data:'数据维护', tab_about:'版本更新',
+    tab_teams_desc:'职能团队管理（可重命名团队、调整色彩）',
+    cfg_app_title:'系统看板标题', cfg_app_subtitle:'副标题',
+    cfg_logo_url:'Logo 外部图片链接', cfg_apply_logo_url:'应用链接',
+    cfg_logo_upload:'或上传本地 Logo（PNG / JPG / SVG / WebP，最大 1 MB）',
+    cfg_pick_logo:'选择本地图片', cfg_reset_logo:'恢复默认 Logo',
+    logo_status_default:'当前使用默认 Logo', logo_status_file:'当前使用本地上传 Logo', logo_status_url:'当前使用外部链接 Logo',
+    cfg_language:'界面语言',
+    cfg_show_lunar:'显示农历（月度视图）', cfg_show_weekend:'显示周末灰色背景',
+    cfg_show_holidays:'显示中国法定假日', cfg_show_adjusted:'显示调休工作日',
+    cfg_add_team:'＋ 添加新职能团队',
+    about_text:'<b>v1.19 Build 01E</b>：支持简体中文 / 繁体中文 / English 三种界面语言切换。',
+    recycle_title:'🗑️ 排期回收站', recycle_empty:'回收站为空', recycle_restore:'恢复',
+    recovery_center:'恢复中心', recovery_ignore:'继续使用当前数据',
+    recovery_new_found:'发现较新的恢复数据', recovery_new_desc:'检测到比当前项目更新的自动恢复点。',
+    recovery_corrupt:'自动恢复数据异常', recovery_corrupt_desc:'自动恢复缓存无法读取，可从最近的轮转快照恢复。',
+    recovery_cache_broken:'恢复缓存损坏', recovery_from:'已从{src}恢复项目',
+    recovery_point:'自动恢复点', recovery_snapshot:'轮转快照',
+    recovery_saved_at:'保存于 {time}',
+    pop_team:'职能团队:', pop_date:'排期范围:', pop_owner:'负责人:', pop_location:'形式/地点:',
+    pop_unassigned:'未指派', pop_tbd:'待定',
+    toast_need_title_dates:'请填写计划名称与完整起止日期', toast_end_before_start:'结束日期不能早于开始日期',
+    toast_saved:'排期已保存并同步呈现', toast_deleted:'排期已移入回收站', toast_no_undo:'没有可恢复的排期',
+    toast_restored:'排期已恢复', toast_recycle_emptied:'回收站已清空',
+    toast_settings_saved:'设置已保存；团队重命名已同步全部排期。',
+    toast_language_changed:'界面语言已切换',
+    toast_bold:'已切换为：{mode}', toast_wrap:'已切换为：{mode}',
+    toast_logo_file:'本地 Logo 已应用', toast_logo_url:'外部 Logo 链接已应用', toast_logo_reset:'已恢复默认 Logo',
+    toast_exported:'项目文件已导出', toast_import_ok:'项目导入成功：{n} 项排期',
+    toast_outlook:'已打开 Outlook，请检查后选择保存',
+    toast_shift:'排期已平移：{title} 调整为 {start} 至 {end}',
+    confirm_delete:'确定删除排期【{title}】吗？删除后可从回收站恢复。',
+    confirm_empty_recycle:'确定永久清空回收站吗？此操作无法撤销。',
+    confirm_delete_team:'确定删除团队【{name}】吗？',
+    confirm_reset_all:'此操作将永久清除全部排期、团队设置、回收站、标题、Logo 和显示偏好。是否继续？',
+    prompt_reset:'请输入 RESET 确认全面清除：',
+    alert_reset_wrong:'输入不正确，未清除任何数据。',
+    alert_team_exists:'该团队名称已存在！', alert_team_in_use:'该团队仍有关联排期或回收站记录，不能删除。',
+    alert_team_dup:'团队名称不能重复。',
+    alert_logo_type:'仅支持 PNG、JPG、SVG 或 WebP 图片。', alert_logo_size:'Logo 文件不能超过 1 MB。',
+    alert_logo_read_fail:'Logo 读取失败，请重新选择图片。', alert_logo_url_bad:'请输入有效的图片链接。',
+    alert_logo_url_proto:'Logo 链接仅支持 http 或 https。',
+    alert_import_type:'导入失败：请选择 .json 或 .tplanner.json 文件', alert_import_size:'导入失败：项目文件不能超过 5 MB',
+    alert_import_fail:'导入失败：{msg}\n原数据未被修改。',
+    prompt_new_team:'请输入新团队名称：',
+    week_sun:'日', week_mon:'一', week_tue:'二', week_wed:'三', week_thu:'四', week_fri:'五', week_sat:'六',
+    lbl_corner:'职能团队', lbl_shift_class:'班',
+    bold_mode_on:'粗体显示', bold_mode_off:'正常字重',
+    wrap_mode_on:'单元格自动换行显示全部', wrap_mode_off:'单元格单行省略截断 (...)',
+    status_confirmed_label:'Confirmed', status_planned_label:'Planned',
+    backup_due_changes:'已有较多修改尚未导出项目文件，建议立即备份。',
+    backup_due_time:'项目超过 1 天未导出备份，建议立即保存 .tplanner.json。',
+    proj_name_default:'Team Planner Project',
+    app_title_default:'Team Planner', app_subtitle_default:'Annual & Monthly Planning Board',
+    month_unit:'{m}月',
+    deleted_at:'删除于',
+    add_team_btn:'＋ 添加新职能团队'
+  },
+  'zh-TW': {
+    system_settings:'系統設定', new_event:'＋ 新建計畫', undo_delete:'↩ 復原刪除',
+    recovery_saved:'已建立復原點',
+    view_year:'年度總覽', view_month:'月度排程',
+    col_width:'欄寬:', font_size:'字號:',
+    bold_on:'粗體: 開', bold_off:'粗體: 關',
+    wrap_on:'換行: 開 (多行)', wrap_off:'換行: 關 (省略)',
+    search_placeholder:'搜尋計畫名稱、地點、負責人……',
+    team_toggles_title:'職能團隊顯示開關:',
+    legend_holiday:'法定假日', legend_adjusted:'週末補班', legend_confirmed:'Confirmed', legend_planned:'Planned',
+    legend_hint:'年份下拉選擇；月份箭頭切換；按住卡片拖曳平移日期；空白格拖選新建',
+    year_view_title:'{year} HR 年度總覽', month_view_title:'{year}年 {month}月排程', items_count:'{n} 項排程',
+    backup_reminder_default:'建議匯出專案檔案，防止清理瀏覽器資料後無法復原。',
+    backup_now:'立即備份', backup_later:'稍後提醒',
+    new_event_title:'新建排程', edit_event_title:'編輯排程事項',
+    f_title:'事項名稱 *', f_team:'職能團隊 *', f_owner:'負責人 / 協同人員',
+    f_start:'開始日期 *', f_end:'結束日期 *', f_status:'狀態',
+    f_location:'地點 / 形式', f_notes:'備註詳細',
+    status_planned:'Planned', status_confirmed:'Confirmed',
+    delete_event:'刪除此排程', add_outlook:'📅 加入 Outlook',
+    btn_cancel:'取消', btn_save:'儲存', btn_save_apply:'儲存並生效', btn_close:'關閉',
+    btn_export:'匯出專案 (.tplanner.json)', btn_import:'匯入專案 (.json / .tplanner.json)',
+    btn_recycle:'回收筒', btn_reset_all:'全面清除資料 / 恢復初始狀態',
+    btn_empty_recycle:'清空回收筒',
+    settings_title:'⚙️ 系統設定中心',
+    tab_basic:'基礎設定', tab_calendar:'日曆增強', tab_teams:'職能團隊',
+    tab_data:'資料維護', tab_about:'版本更新',
+    tab_teams_desc:'職能團隊管理（可重新命名團隊、調整色彩）',
+    cfg_app_title:'系統看板標題', cfg_app_subtitle:'副標題',
+    cfg_logo_url:'Logo 外部圖片連結', cfg_apply_logo_url:'套用連結',
+    cfg_logo_upload:'或上傳本機 Logo（PNG / JPG / SVG / WebP，最大 1 MB）',
+    cfg_pick_logo:'選擇本機圖片', cfg_reset_logo:'恢復預設 Logo',
+    logo_status_default:'目前使用預設 Logo', logo_status_file:'目前使用本機上傳 Logo', logo_status_url:'目前使用外部連結 Logo',
+    cfg_language:'介面語言',
+    cfg_show_lunar:'顯示農曆（月度檢視）', cfg_show_weekend:'顯示週末灰色背景',
+    cfg_show_holidays:'顯示中國法定假日', cfg_show_adjusted:'顯示調休工作日',
+    cfg_add_team:'＋ 新增職能團隊',
+    about_text:'<b>v1.19 Build 01E</b>：支援簡體中文 / 繁體中文 / English 三種介面語言切換。',
+    recycle_title:'🗑️ 排程回收筒', recycle_empty:'回收筒為空', recycle_restore:'恢復',
+    recovery_center:'復原中心', recovery_ignore:'繼續使用目前資料',
+    recovery_new_found:'發現較新的復原資料', recovery_new_desc:'偵測到比目前專案更新的自動復原點。',
+    recovery_corrupt:'自動復原資料異常', recovery_corrupt_desc:'自動復原快取無法讀取，可從最近的輪轉快照復原。',
+    recovery_cache_broken:'復原快取損毀', recovery_from:'已從{src}復原專案',
+    recovery_point:'自動復原點', recovery_snapshot:'輪轉快照',
+    recovery_saved_at:'儲存於 {time}',
+    pop_team:'職能團隊:', pop_date:'排程範圍:', pop_owner:'負責人:', pop_location:'形式/地點:',
+    pop_unassigned:'未指派', pop_tbd:'待定',
+    toast_need_title_dates:'請填寫計畫名稱與完整起訖日期', toast_end_before_start:'結束日期不能早於開始日期',
+    toast_saved:'排程已儲存並同步呈現', toast_deleted:'排程已移入回收筒', toast_no_undo:'沒有可復原的排程',
+    toast_restored:'排程已復原', toast_recycle_emptied:'回收筒已清空',
+    toast_settings_saved:'設定已儲存；團隊重新命名已同步全部排程。',
+    toast_language_changed:'介面語言已切換',
+    toast_bold:'已切換為：{mode}', toast_wrap:'已切換為：{mode}',
+    toast_logo_file:'本機 Logo 已套用', toast_logo_url:'外部 Logo 連結已套用', toast_logo_reset:'已恢復預設 Logo',
+    toast_exported:'專案檔案已匯出', toast_import_ok:'專案匯入成功：{n} 項排程',
+    toast_outlook:'已開啟 Outlook，請檢查後選擇儲存',
+    toast_shift:'排程已平移：{title} 調整為 {start} 至 {end}',
+    confirm_delete:'確定刪除排程【{title}】嗎？刪除後可從回收筒恢復。',
+    confirm_empty_recycle:'確定永久清空回收筒嗎？此操作無法復原。',
+    confirm_delete_team:'確定刪除團隊【{name}】嗎？',
+    confirm_reset_all:'此操作將永久清除全部排程、團隊設定、回收筒、標題、Logo 和顯示偏好。是否繼續？',
+    prompt_reset:'請輸入 RESET 確認全面清除：',
+    alert_reset_wrong:'輸入不正確，未清除任何資料。',
+    alert_team_exists:'該團隊名稱已存在！', alert_team_in_use:'該團隊仍有關聯排程或回收筒記錄，不能刪除。',
+    alert_team_dup:'團隊名稱不能重複。',
+    alert_logo_type:'僅支援 PNG、JPG、SVG 或 WebP 圖片。', alert_logo_size:'Logo 檔案不能超過 1 MB。',
+    alert_logo_read_fail:'Logo 讀取失敗，請重新選擇圖片。', alert_logo_url_bad:'請輸入有效的圖片連結。',
+    alert_logo_url_proto:'Logo 連結僅支援 http 或 https。',
+    alert_import_type:'匯入失敗：請選擇 .json 或 .tplanner.json 檔案', alert_import_size:'匯入失敗：專案檔案不能超過 5 MB',
+    alert_import_fail:'匯入失敗：{msg}\n原資料未被修改。',
+    prompt_new_team:'請輸入新團隊名稱：',
+    week_sun:'日', week_mon:'一', week_tue:'二', week_wed:'三', week_thu:'四', week_fri:'五', week_sat:'六',
+    lbl_corner:'職能團隊', lbl_shift_class:'班',
+    bold_mode_on:'粗體顯示', bold_mode_off:'正常字重',
+    wrap_mode_on:'儲存格自動換行顯示全部', wrap_mode_off:'儲存格單行省略截斷 (...)',
+    status_confirmed_label:'Confirmed', status_planned_label:'Planned',
+    backup_due_changes:'已有較多修改尚未匯出專案檔案，建議立即備份。',
+    backup_due_time:'專案超過 1 天未匯出備份，建議立即儲存 .tplanner.json。',
+    proj_name_default:'Team Planner Project',
+    app_title_default:'Team Planner', app_subtitle_default:'Annual & Monthly Planning Board',
+    month_unit:'{m}月',
+    deleted_at:'刪除於',
+    add_team_btn:'＋ 新增職能團隊'
+  },
+  'en': {
+    system_settings:'Settings', new_event:'+ New Plan', undo_delete:'↩ Undo Delete',
+    recovery_saved:'Recovery point saved',
+    view_year:'Year View', view_month:'Month View',
+    col_width:'Col:', font_size:'Font:',
+    bold_on:'Bold: On', bold_off:'Bold: Off',
+    wrap_on:'Wrap: On', wrap_off:'Wrap: Off',
+    search_placeholder:'Search title, location, owner...',
+    team_toggles_title:'Team visibility:',
+    legend_holiday:'Holiday', legend_adjusted:'Adjusted Workday', legend_confirmed:'Confirmed', legend_planned:'Planned',
+    legend_hint:'Select year from dropdown; use arrows to switch months; drag cards to shift dates; drag empty cells to create',
+    year_view_title:'{year} Annual Overview', month_view_title:'{year} {month} Schedule', items_count:'{n} items',
+    backup_reminder_default:'Export your project to prevent data loss after clearing browser data.',
+    backup_now:'Backup Now', backup_later:'Remind Later',
+    new_event_title:'New Plan', edit_event_title:'Edit Plan',
+    f_title:'Title *', f_team:'Team *', f_owner:'Owner / Participants',
+    f_start:'Start Date *', f_end:'End Date *', f_status:'Status',
+    f_location:'Location / Format', f_notes:'Notes',
+    status_planned:'Planned', status_confirmed:'Confirmed',
+    delete_event:'Delete This Plan', add_outlook:'📅 Add to Outlook',
+    btn_cancel:'Cancel', btn_save:'Save', btn_save_apply:'Save & Apply', btn_close:'Close',
+    btn_export:'Export (.tplanner.json)', btn_import:'Import (.json / .tplanner.json)',
+    btn_recycle:'Recycle Bin', btn_reset_all:'Reset All Data',
+    btn_empty_recycle:'Empty Recycle Bin',
+    settings_title:'⚙️ Settings Center',
+    tab_basic:'General', tab_calendar:'Calendar', tab_teams:'Teams',
+    tab_data:'Data', tab_about:'About',
+    tab_teams_desc:'Manage teams (rename, adjust color)',
+    cfg_app_title:'Dashboard Title', cfg_app_subtitle:'Subtitle',
+    cfg_logo_url:'Logo URL', cfg_apply_logo_url:'Apply',
+    cfg_logo_upload:'Or upload local Logo (PNG / JPG / SVG / WebP, max 1 MB)',
+    cfg_pick_logo:'Choose File', cfg_reset_logo:'Reset Logo',
+    logo_status_default:'Using default logo', logo_status_file:'Using uploaded logo', logo_status_url:'Using URL logo',
+    cfg_language:'Language',
+    cfg_show_lunar:'Show lunar calendar', cfg_show_weekend:'Show weekend background',
+    cfg_show_holidays:'Show Chinese holidays', cfg_show_adjusted:'Show adjusted workdays',
+    cfg_add_team:'+ Add Team',
+    about_text:'<b>v1.19 Build 01E</b>: Supports Simplified Chinese / Traditional Chinese / English.',
+    recycle_title:'🗑️ Recycle Bin', recycle_empty:'Recycle bin is empty', recycle_restore:'Restore',
+    recovery_center:'Recovery Center', recovery_ignore:'Keep Current Data',
+    recovery_new_found:'Newer recovery data found', recovery_new_desc:'A recovery point newer than the current project was detected.',
+    recovery_corrupt:'Recovery data corrupted', recovery_corrupt_desc:'Recovery cache is unreadable. You can restore from the latest snapshot.',
+    recovery_cache_broken:'Recovery cache broken', recovery_from:'Project restored from {src}',
+    recovery_point:'Auto Recovery Point', recovery_snapshot:'Rotating Snapshot',
+    recovery_saved_at:'Saved at {time}',
+    pop_team:'Team:', pop_date:'Date range:', pop_owner:'Owner:', pop_location:'Location:',
+    pop_unassigned:'Unassigned', pop_tbd:'TBD',
+    toast_need_title_dates:'Please fill in the title and full date range', toast_end_before_start:'End date cannot be earlier than start date',
+    toast_saved:'Plan saved', toast_deleted:'Plan moved to recycle bin', toast_no_undo:'No plan to restore',
+    toast_restored:'Plan restored', toast_recycle_emptied:'Recycle bin emptied',
+    toast_settings_saved:'Settings saved; team renames synced to all plans.',
+    toast_language_changed:'Language switched',
+    toast_bold:'Switched to: {mode}', toast_wrap:'Switched to: {mode}',
+    toast_logo_file:'Local logo applied', toast_logo_url:'Logo URL applied', toast_logo_reset:'Default logo restored',
+    toast_exported:'Project exported', toast_import_ok:'Project imported: {n} plans',
+    toast_outlook:'Outlook opened, please review and save',
+    toast_shift:'Shifted: {title} now {start} → {end}',
+    confirm_delete:'Delete plan "{title}"? You can restore it from the recycle bin.',
+    confirm_empty_recycle:'Permanently empty the recycle bin? This cannot be undone.',
+    confirm_delete_team:'Delete team "{name}"?',
+    confirm_reset_all:'This will permanently clear all plans, teams, recycle bin, title, logo and preferences. Continue?',
+    prompt_reset:'Type RESET to confirm:',
+    alert_reset_wrong:'Incorrect input. Nothing was cleared.',
+    alert_team_exists:'This team name already exists!', alert_team_in_use:'This team still has plans or recycle bin entries and cannot be deleted.',
+    alert_team_dup:'Team names must be unique.',
+    alert_logo_type:'Only PNG, JPG, SVG or WebP allowed.', alert_logo_size:'Logo file must be under 1 MB.',
+    alert_logo_read_fail:'Failed to read logo, please try again.', alert_logo_url_bad:'Please enter a valid image URL.',
+    alert_logo_url_proto:'Logo URL must be http or https.',
+    alert_import_type:'Import failed: choose a .json or .tplanner.json file', alert_import_size:'Import failed: file must be under 5 MB',
+    alert_import_fail:'Import failed: {msg}\nOriginal data unchanged.',
+    prompt_new_team:'Enter new team name:',
+    week_sun:'S', week_mon:'M', week_tue:'T', week_wed:'W', week_thu:'T', week_fri:'F', week_sat:'S',
+    lbl_corner:'Team', lbl_shift_class:'WD',
+    bold_mode_on:'bold', bold_mode_off:'normal',
+    wrap_mode_on:'multi-line wrap', wrap_mode_off:'single-line ellipsis',
+    status_confirmed_label:'Confirmed', status_planned_label:'Planned',
+    backup_due_changes:'You have many unsaved changes. Consider exporting now.',
+    backup_due_time:'It has been over 1 day since the last export. Consider saving a .tplanner.json now.',
+    proj_name_default:'Team Planner Project',
+    app_title_default:'Team Planner', app_subtitle_default:'Annual & Monthly Planning Board',
+    month_unit:'{m}',
+    deleted_at:'Deleted at',
+    add_team_btn:'+ Add Team'
+  }
+};
+
+let currentLang = 'zh-CN';
+function t(key, params){
+  const dict = I18N[currentLang] || I18N['zh-CN'];
+  let s = dict[key];
+  if(s === undefined) s = (I18N['zh-CN'][key] !== undefined ? I18N['zh-CN'][key] : key);
+  if(params){ for(const k in params){ s = String(s).replace(new RegExp('\\{'+k+'\\}','g'), params[k]); } }
+  return s;
+}
+
+function applyStaticTranslations(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{ el.placeholder = t(el.getAttribute('data-i18n-placeholder')); });
+  document.querySelectorAll('[data-i18n-title]').forEach(el=>{ el.title = t(el.getAttribute('data-i18n-title')); });
+}
+
+function setLanguage(lang){
+  if(!I18N[lang]) return;
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  const topSel = document.getElementById('langSelect'); if(topSel) topSel.value = lang;
+  const cfgSel = document.getElementById('cfgLanguage'); if(cfgSel) cfgSel.value = lang;
+  applyStaticTranslations();
+  if(typeof persistProjectCache === 'function'){ try{ persistProjectCache(); }catch(e){} }
+  if(typeof applyBranding === 'function') applyBranding();
+  if(typeof updateRecoveryStatus === 'function') { /* keep */ }
+  if(typeof updateLogoStatus === 'function') updateLogoStatus();
+  if(typeof updateBoldBtnUI === 'function') updateBoldBtnUI();
+  if(typeof updateWrapBtnUI === 'function') updateWrapBtnUI();
+  if(typeof renderTeamToggles === 'function') renderTeamToggles();
+  if(typeof renderLegend === 'function') renderLegend();
+  if(typeof render === 'function') render();
+  if(typeof renderRecycleBin === 'function' && document.getElementById('recycleModal').style.display === 'flex') renderRecycleBin();
+  if(typeof toast === 'function') toast(t('toast_language_changed'));
+}
+
+/* ===================== DATA ===================== */
+const holidays_2026 = {
+  '2026-01-01':'元旦','2026-01-02':'元旦','2026-01-03':'元旦',
+  '2026-02-15':'春节','2026-02-16':'春节','2026-02-17':'春节','2026-02-18':'春节',
+  '2026-02-19':'春节','2026-02-20':'春节','2026-02-21':'春节','2026-02-22':'春节','2026-02-23':'春节',
+  '2026-04-04':'清明','2026-04-05':'清明','2026-04-06':'清明',
+  '2026-05-01':'劳动节','2026-05-02':'劳动节','2026-05-03':'劳动节','2026-05-04':'劳动节','2026-05-05':'劳动节',
+  '2026-06-19':'端午','2026-06-20':'端午','2026-06-21':'端午',
+  '2026-09-25':'中秋','2026-09-26':'中秋','2026-09-27':'中秋',
+  '2026-10-01':'国庆','2026-10-02':'国庆','2026-10-03':'国庆','2026-10-04':'国庆',
+  '2026-10-05':'国庆','2026-10-06':'国庆','2026-10-07':'国庆'
+};
+const workdays_adjusted_2026 = {'2026-01-04':'调休上班','2026-02-14':'调休上班','2026-02-28':'调休上班','2026-05-09':'调休上班','2026-09-20':'调休上班','2026-10-10':'调休上班'};
+const holidays_2027 = {
+  '2027-01-01':'元旦','2027-01-02':'元旦','2027-01-03':'元旦',
+  '2027-02-06':'春节','2027-02-07':'春节','2027-02-08':'春节','2027-02-09':'春节',
+  '2027-02-10':'春节','2027-02-11':'春节','2027-02-12':'春节','2027-02-13':'春节',
+  '2027-04-04':'清明','2027-04-05':'清明','2027-04-06':'清明',
+  '2027-05-01':'劳动节','2027-05-02':'劳动节','2027-05-03':'劳动节','2027-05-04':'劳动节','2027-05-05':'劳动节',
+  '2027-06-08':'端午','2027-06-09':'端午','2027-06-10':'端午',
+  '2027-09-15':'中秋',
+  '2027-10-01':'国庆','2027-10-02':'国庆','2027-10-03':'国庆','2027-10-04':'国庆',
+  '2027-10-05':'国庆','2027-10-06':'国庆','2027-10-07':'国庆'
+};
+const workdays_adjusted_2027 = {};
+function getHolidaysForYear(y){ return y === 2027 ? holidays_2027 : holidays_2026; }
+function getAdjustedForYear(y){ return y === 2027 ? workdays_adjusted_2027 : workdays_adjusted_2026; }
+
+const defaultTeams = [
+  { name:'Team A', color:'#c9142b', light:false, visible:true },
+  { name:'Team B', color:'#7bc633', light:true, visible:true },
+  { name:'Team C', color:'#f7c49f', light:true, visible:true },
+  { name:'Team D', color:'#f3c428', light:true, visible:true },
+];
+const verifiedFullYearEvents = [];
+const LEGACY_TEAM_MAP={LD:'L&D',ENG:'Engagement',ELC:'TA',MEET:'Meeting',CB:'C&B'};
+function normalizeTeamName(v,list=teams){const raw=String(v||'').trim();if(!raw)return '';const exact=(list||[]).find(t=>String(t.name||'').trim().toLowerCase()===raw.toLowerCase());if(exact)return exact.name;return LEGACY_TEAM_MAP[raw.toUpperCase()]||raw;}
+function migrateTeams(raw){const source=Array.isArray(raw)?raw:defaultTeams,seen=new Set();return source.map(t=>{const sourceName=t.name||LEGACY_TEAM_MAP[String(t.id||'').toUpperCase()]||t.id;const name=normalizeTeamName(sourceName,defaultTeams);return {name,color:t.color||'#6366f1',light:typeof t.light==='boolean'?t.light:isColorLight(t.color||'#6366f1'),visible:t.visible!==false};}).filter(t=>t.name&&!seen.has(t.name.toLowerCase())&&(seen.add(t.name.toLowerCase()),true));}
+const PROJECT_CACHE_KEY='hr_planner_project_cache_v119';
+function readJSONStorage(key,fallback=null){try{const raw=localStorage.getItem(key);return raw===null?fallback:JSON.parse(raw);}catch(e){return fallback;}}
+function buildLegacyProject(){
+  const legacyTeams=migrateTeams(readJSONStorage('hr_planner_teams_global',readJSONStorage('hr_planner_teams_v13',defaultTeams))||defaultTeams);
+  const legacyEvents=(readJSONStorage('hr_planner_events_global',readJSONStorage('hr_planner_events_v13',verifiedFullYearEvents))||verifiedFullYearEvents).map(e=>({...e,team:normalizeTeamName(e.team,legacyTeams),status:e.status==='confirmed'?'confirmed':'planned'}));
+  const legacyRecycle=(readJSONStorage('hr_planner_recycle_bin_global',[])||[]).map(e=>({...e,team:normalizeTeamName(e.team,legacyTeams)}));
+  const now=new Date().toISOString();
+  return {schemaVersion:'TeamPlannerProject/1.19',metadata:{projectName:'Team Planner Project',version:'1.19',build:'01E',createdAt:now,modifiedAt:now},branding:{title:'Team Planner',subtitle:'Annual & Monthly Planning Board',logo:'',logoType:''},settings:{colWidth:48,fontSize:11,isWrapMode:false,isBoldMode:true,showLunar:false,showWeekend:true,showHolidays:true,showAdjusted:true,language:'zh-CN'},teams:legacyTeams,events:legacyEvents,recycleBin:legacyRecycle};
+}
+function normalizeProject(raw){
+  const src=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
+  const isV19=src.schemaVersion==='TeamPlannerProject/1.19'||(src.metadata&&src.branding&&src.settings);
+  const sourceTeams=migrateTeams(src.teams||defaultTeams);
+  const sourceEvents=Array.isArray(src.events)?src.events:[];
+  const branding=isV19?(src.branding||{}):{title:src.title,subtitle:src.subtitle,logo:src.logo,logoType:src.logoType};
+  const settings=isV19?(src.settings||{}):src;
+  const now=new Date().toISOString();
+  return {schemaVersion:'TeamPlannerProject/1.19',metadata:{projectName:String(src.metadata?.projectName||branding.title||'Team Planner Project').trim()||'Team Planner Project',version:'1.19',build:'01E',createdAt:src.metadata?.createdAt||now,modifiedAt:src.metadata?.modifiedAt||now},branding:{title:String(branding.title||'Team Planner'),subtitle:typeof branding.subtitle==='string'?branding.subtitle:'Annual & Monthly Planning Board',logo:typeof branding.logo==='string'?branding.logo:'',logoType:branding.logoType==='file'?'file':(branding.logo?'url':'')},settings:{colWidth:Number.isFinite(Number(settings.colWidth))?Math.min(80,Math.max(34,Number(settings.colWidth))):48,fontSize:Number.isFinite(Number(settings.fontSize))?Math.min(14,Math.max(9,Number(settings.fontSize))):11,isWrapMode:settings.isWrapMode===true,isBoldMode:settings.isBoldMode!==false,showLunar:settings.showLunar===true,showWeekend:settings.showWeekend!==false,showHolidays:settings.showHolidays!==false,showAdjusted:settings.showAdjusted!==false,language:['zh-CN','zh-TW','en'].includes(settings.language)?settings.language:'zh-CN'},teams:sourceTeams,events:sourceEvents.map(e=>({...e,team:normalizeTeamName(e.team,sourceTeams),status:e.status==='confirmed'?'confirmed':'planned'})),recycleBin:(Array.isArray(src.recycleBin)?src.recycleBin:[]).map(e=>({...e,team:normalizeTeamName(e.team,sourceTeams)}))};
+}
+
+let currentProject=normalizeProject(readJSONStorage(PROJECT_CACHE_KEY,null)||buildLegacyProject());
+let teams=currentProject.teams;
+let events=currentProject.events;
+const requiredTeamNames=new Set(events.map(e=>e.team).filter(Boolean));requiredTeamNames.forEach(name=>{if(!teams.some(t=>t.name===name)){const base=defaultTeams.find(t=>t.name===name);teams.push(base?{...base}:{name,color:'#6366f1',light:false,visible:true});}});
+let appTitle=currentProject.branding.title;
+let appSubtitle=currentProject.branding.subtitle;
+let appLogo=currentProject.branding.logo;
+let appLogoType=currentProject.branding.logoType;
+let currentColWidth=currentProject.settings.colWidth;
+let currentFontSize=currentProject.settings.fontSize;
+let isWrapMode=currentProject.settings.isWrapMode;
+let isBoldMode=currentProject.settings.isBoldMode;
+let showLunar=currentProject.settings.showLunar;
+let showWeekend=currentProject.settings.showWeekend;
+let showHolidays=currentProject.settings.showHolidays;
+let showAdjusted=currentProject.settings.showAdjusted;
+currentLang=currentProject.settings.language||'zh-CN';
+let view='month',year=2026,currentMonth=8,editId=null;
+let recycleBin=currentProject.recycleBin;
+let lastDeletedEvent=recycleBin.length?recycleBin[recycleBin.length-1]:null;
+
+function syncProjectModel(){currentProject.schemaVersion='TeamPlannerProject/1.19';currentProject.metadata={...(currentProject.metadata||{}),projectName:String(currentProject.metadata?.projectName||appTitle||'Team Planner Project').trim()||'Team Planner Project',version:'1.19',build:'01E',createdAt:currentProject.metadata?.createdAt||new Date().toISOString(),modifiedAt:new Date().toISOString()};currentProject.branding={title:appTitle,subtitle:appSubtitle,logo:appLogo,logoType:appLogoType};currentProject.settings={colWidth:currentColWidth,fontSize:currentFontSize,isWrapMode,isBoldMode,showLunar,showWeekend,showHolidays,showAdjusted,language:currentLang};currentProject.teams=teams;currentProject.events=events;currentProject.recycleBin=recycleBin;return currentProject;}
+function persistProjectCache(){syncProjectModel();localStorage.setItem(PROJECT_CACHE_KEY,JSON.stringify(currentProject));}
+persistProjectCache();
+
+const $ = id => document.getElementById(id);
+
+let isDraggingEvent=false, draggedEventId=null, dragOriginStartDay=null, dragSpanDays=null, dragHoverDay=null, dragHoverTeam=null;
+let isCellMouseDown=false, selectTeam=null, selectStartDay=null, selectEndDay=null;
+let hasMovedDuringDrag=false;
+
+function init() {
+  document.documentElement.lang = currentLang;
+  $('yearSelect').innerHTML = Array.from({length: 11}, (_, i) => `<option value="${2023 + i}">${2023 + i}</option>`).join('');
+  $('yearSelect').value = year;
+  const topSel = $('langSelect'); if(topSel) topSel.value = currentLang;
+  applyBranding();
+  applyStaticTranslations();
+  updateMonthLabel();
+  applyColWidth(currentColWidth);
+  applyFontSize(currentFontSize);
+  updateWrapBtnUI();
+  updateBoldBtnUI();
+  renderTeamToggles();
+  renderLegend();
+  render();
+  bindGlobalInteractions();
+  updateRecycleCount();
+}
+function updateMonthLabel(){ $('monthLabel').textContent = t('month_unit',{m:currentMonth+1}); }
+
+function adjustColWidth(delta){ currentColWidth = Math.min(80, Math.max(34, currentColWidth + delta)); applyColWidth(currentColWidth); persistProjectCache(); }
+function applyColWidth(w){ document.documentElement.style.setProperty('--col-w', `${w}px`); $('colWidthDisplay').textContent = `${w}px`; }
+function adjustFontSize(delta){ currentFontSize = Math.min(14, Math.max(9, currentFontSize + delta)); applyFontSize(currentFontSize); persistProjectCache(); }
+function applyFontSize(size){ document.documentElement.style.setProperty('--item-font-size', `${size}px`); $('fontSizeDisplay').textContent = `${size}px`; }
+
+function toggleBoldMode(){ isBoldMode = !isBoldMode; persistProjectCache(); updateBoldBtnUI(); render(); toast(t('toast_bold',{mode:isBoldMode?t('bold_mode_on'):t('bold_mode_off')})); }
+function updateBoldBtnUI(){ const btn = $('boldToggleBtn'); btn.textContent = isBoldMode ? t('bold_on') : t('bold_off'); btn.classList.toggle('active', isBoldMode); }
+function toggleWrapMode(){ isWrapMode = !isWrapMode; persistProjectCache(); updateWrapBtnUI(); render(); toast(t('toast_wrap',{mode:isWrapMode?t('wrap_mode_on'):t('wrap_mode_off')})); }
+function updateWrapBtnUI(){ const btn = $('wrapToggleBtn'); btn.textContent = isWrapMode ? t('wrap_on') : t('wrap_off'); btn.classList.toggle('active', isWrapMode); }
+
+function renderTeamToggles() {
+  const bar = $('teamTogglesBar');
+  bar.innerHTML = `<span class="toggle-title">${t('team_toggles_title')}</span>`;
+  teams.forEach(tm => {
+    const isVis = tm.visible !== false;
+    const btn = document.createElement('button');
+    btn.className = `team-pill-btn ${isVis ? 'active' : ''}`;
+    if (isVis) { btn.style.backgroundColor = tm.color; if (tm.light) btn.style.color = '#1e293b'; }
+    btn.innerHTML = `<span class="check-icon">${isVis ? '✓' : '○'}</span> ${tm.name}`;
+    btn.onclick = () => { tm.visible = !isVis; saveTeamsToLocal(); renderTeamToggles(); renderLegend(); render(); };
+    bar.appendChild(btn);
+  });
+}
+
+function renderLegend() {
+  const leg = $('legend');
+  leg.innerHTML = '';
+  teams.filter(tm => tm.visible !== false).forEach(tm => {
+    leg.insertAdjacentHTML('beforeend', `<span class="legend-item"><i class="dot" style="background:${tm.color}"></i>${tm.name}</span>`);
+  });
+  leg.insertAdjacentHTML('beforeend', `
+    <span class="legend-item"><i class="dot" style="background:var(--holiday-bg)"></i>${t('legend_holiday')}</span>
+    <span class="legend-item"><i class="dot" style="background:var(--adjusted-workday);border:1px solid #d97706"></i>${t('legend_adjusted')}</span>
+    <span class="status-legend-item"><span class="status-box" style="border-left:3px solid #475569"></span>${t('legend_confirmed')}</span>
+    <span class="status-legend-item"><span class="status-box" style="border-left:4px solid transparent"></span>${t('legend_planned')}</span>
+    <span class="hint">${t('legend_hint')}</span>
+  `);
+}
+
+function filtered() {
+  const q = $('search').value.trim().toLowerCase();
+  const visibleTeamNames = new Set(teams.filter(tm => tm.visible !== false).map(tm => tm.name));
+  return events.filter(e => {
+    if (!visibleTeamNames.has(e.team)) return false;
+    const matchYear = new Date(e.start).getFullYear() === year || new Date(e.end).getFullYear() === year;
+    const matchQ = !q || [e.title, e.owner, e.location, e.status, e.notes].join(' ').toLowerCase().includes(q);
+    return matchYear && matchQ;
+  });
+}
+
+function render() {
+  $('yearSelect').value = year;
+  updateMonthLabel();
+  $('viewTitle').textContent = view === 'year' ? t('year_view_title',{year}) : t('month_view_title',{year,month:currentMonth+1});
+  const list = filtered();
+  $('countText').textContent = t('items_count',{n:list.length});
+  view === 'year' ? renderYear(list) : renderMonth(list);
+}
+
+function renderYear(list) {
+  let h = `<div class="scroll"><div class="year-grid"><div class="cell headcell">${t('lbl_corner')}</div>` +
+    Array.from({length: 12}, (_, i) => `<div class="cell headcell">${t('month_unit',{m:i+1})}</div>`).join('');
+  teams.filter(tm => tm.visible !== false).forEach(tm => {
+    h += `<div class="cell teamcell"><i class="dot" style="background:${tm.color}"></i>${tm.name}</div>`;
+    for (let m = 0; m < 12; m++) {
+      const es = list.filter(e => {
+        if (e.team !== tm.name) return false;
+        const s = new Date(e.start), en = new Date(e.end);
+        return (s.getFullYear() === year && s.getMonth() <= m) && (en.getFullYear() === year && en.getMonth() >= m);
+      });
+      h += `<div class="cell">${es.map(e => `
+        <div class="event-pill ${tm.light ? 'light' : ''} status-${e.status || 'confirmed'} ${isBoldMode ? 'font-bold-mode' : 'font-normal-mode'}" style="background:${tm.color};--confirmed-border:${darkenColor(tm.color, 0.42)}" 
+             onclick="editEvent(${e.id})" onmouseenter="showHoverCard(event, ${e.id})" onmouseleave="hideHoverCard()">
+          ${e.title}
+        </div>`).join('')}</div>`;
+    }
+  });
+  h += '</div></div>';
+  $('board').innerHTML = h;
+}
+
+function getLunarText(yr,m,d){
+  try {
+    const parts=new Intl.DateTimeFormat('zh-CN-u-ca-chinese',{month:'numeric',day:'numeric'}).formatToParts(new Date(yr,m,d));
+    const rawMonth=parts.find(p=>p.type==='month')?.value||'';
+    const rawDay=parts.find(p=>p.type==='day')?.value||'';
+    const digits={'0':'〇','1':'一','2':'二','3':'三','4':'四','5':'五','6':'六','7':'七','8':'八','9':'九'};
+    const monthNames={'1':'正','2':'二','3':'三','4':'四','5':'五','6':'六','7':'七','8':'八','9':'九','10':'十','11':'十一','12':'腊'};
+    const dayNames={'1':'初一','2':'初二','3':'初三','4':'初四','5':'初五','6':'初六','7':'初七','8':'初八','9':'初九','10':'初十','11':'十一','12':'十二','13':'十三','14':'十四','15':'十五','16':'十六','17':'十七','18':'十八','19':'十九','20':'二十','21':'廿一','22':'廿二','23':'廿三','24':'廿四','25':'廿五','26':'廿六','27':'廿七','28':'廿八','29':'廿九','30':'三十'};
+    const monthKey=String(parseInt(rawMonth,10)); const dayKey=String(parseInt(rawDay,10));
+    const cnMonth=monthNames[monthKey]||rawMonth.split('').map(x=>digits[x]||x).join('');
+    const cnDay=dayNames[dayKey]||rawDay.split('').map(x=>digits[x]||x).join('');
+    return cnMonth+'月'+cnDay;
+  } catch(e){ return ''; }
+}
+
+function renderMonth(list) {
+  const m = currentMonth, yr = year;
+  const days = new Date(yr, m + 1, 0).getDate();
+  const monthEvents = list.filter(e => {
+    const s = new Date(e.start), en = new Date(e.end);
+    const sMatch = (s.getFullYear() < yr) || (s.getFullYear() === yr && s.getMonth() <= m);
+    const eMatch = (en.getFullYear() > yr) || (en.getFullYear() === yr && en.getMonth() >= m);
+    return sMatch && eMatch;
+  });
+  const visibleTeams = teams.filter(tm => tm.visible !== false);
+  const teamTracksMap = {};
+  visibleTeams.forEach(tm => { teamTracksMap[tm.name] = splitIntoTracks(monthEvents.filter(e => e.team === tm.name), days, m, yr); });
+  let totalRows = 0; visibleTeams.forEach(tm => { totalRows += Math.max(1, teamTracksMap[tm.name].length); });
+  let h = `<div class="month-wrap"><div class="grid-calendar" style="--total-days: ${days}; grid-template-rows: 76px repeat(${totalRows}, minmax(46px, auto));">`;
+  h += `<div class="g-cell g-corner">${t('lbl_corner')}</div>`;
+  const weekNames = [t('week_sun'),t('week_mon'),t('week_tue'),t('week_wed'),t('week_thu'),t('week_fri'),t('week_sat')];
+  for (let d = 1; d <= days; d++) {
+    const dateStr = `${yr}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const hDict = getHolidaysForYear(yr), aDict = getAdjustedForYear(yr);
+    const holidayName = hDict[dateStr], adjustedText = aDict[dateStr];
+    const wd = new Date(yr, m, d).getDay();
+    const isWk = (wd === 0 || wd === 6);
+    let cls = '', badge = '';
+    if (holidayName && showHolidays) { cls = 'holiday'; badge = `<span class="day-badge">${holidayName}</span>`; }
+    else if (adjustedText && showAdjusted) { cls = 'workday-adjusted'; badge = `<span class="day-badge">${t('lbl_shift_class')}</span>`; }
+    else if (isWk && showWeekend) { cls = 'weekend'; }
+    h += `<div class="g-cell g-day-th ${cls}" style="grid-column: ${d + 1}; grid-row: 1;">
+      <b>${d}</b><span>${weekNames[wd]}</span>${badge}
+      ${showLunar ? `<span class="lunar-label">${getLunarText(yr,m,d)}</span>` : ''}
+    </div>`;
+  }
+  let currentRow = 2;
+  visibleTeams.forEach(tm => {
+    const tracks = teamTracksMap[tm.name];
+    const teamRowCount = Math.max(1, tracks.length);
+    const startRow = currentRow, endRow = currentRow + teamRowCount;
+    h += `<div class="g-cell g-team-label" style="grid-column: 1; grid-row: ${startRow} / ${endRow};"><i class="dot" style="background:${tm.color}"></i><span>${tm.name}</span></div>`;
+    for (let d = 1; d <= days; d++) {
+      const cls = getDayClass(d, m, yr);
+      for (let r = 0; r < teamRowCount; r++) {
+        h += `<div class="g-cell g-day-bg ${cls}" style="grid-column: ${d + 1}; grid-row: ${startRow + r};" data-team="${tm.name}" data-day="${d}"></div>`;
+      }
+    }
+    tracks.forEach((trackEvents, rIdx) => {
+      const rNum = startRow + rIdx;
+      trackEvents.forEach(item => {
+        const gridColStart = item.startDay + 1, gridColEnd = item.endDay + 2;
+        const statusClass = `status-${item.status || 'confirmed'}`;
+        const boldClass = isBoldMode ? 'font-bold-mode' : 'font-normal-mode';
+        h += `<div class="g-event-card ${tm.light ? 'light' : ''} ${statusClass} ${boldClass}" 
+               style="background: ${tm.color}; --confirmed-border:${darkenColor(tm.color, 0.42)}; grid-column: ${gridColStart} / ${gridColEnd}; grid-row: ${rNum};"
+               onclick="onCardClick(event, ${item.id})" onmouseenter="showHoverCard(event, ${item.id})" onmouseleave="hideHoverCard()"
+               data-event-id="${item.id}"
+               onmousedown="startDragEventMove(event, ${item.id}, encodeURIComponent('${tm.name}'), ${item.startDay}, ${item.endDay - item.startDay + 1})">
+            <div class="event-text ${isWrapMode ? 'wrap-mode' : 'ellipsis-mode'}">${item.title}</div>
+          </div>`;
+      });
+    });
+    currentRow = endRow;
+  });
+  h += `</div></div>`;
+  $('board').innerHTML = h;
+}
+
+function splitIntoTracks(eventsInMonth, days, m, yr) {
+  const monthEvts = eventsInMonth.filter(e => {
+    const s = new Date(e.start), en = new Date(e.end);
+    const sMatch = (s.getFullYear() < yr) || (s.getFullYear() === yr && s.getMonth() <= m);
+    const eMatch = (en.getFullYear() > yr) || (en.getFullYear() === yr && en.getMonth() >= m);
+    return sMatch && eMatch;
+  });
+  const processed = monthEvts.map(e => {
+    const s = new Date(e.start), en = new Date(e.end);
+    const startDay = (s.getFullYear() < yr || s.getMonth() < m) ? 1 : s.getDate();
+    const endDay = (en.getFullYear() > yr || en.getMonth() > m) ? days : en.getDate();
+    return { ...e, startDay, endDay };
+  }).sort((a, b) => a.startDay - b.startDay);
+  const tracks = [];
+  processed.forEach(e => {
+    let placed = false;
+    for (let track of tracks) {
+      const last = track[track.length - 1];
+      if (last.endDay < e.startDay) { track.push(e); placed = true; break; }
+    }
+    if (!placed) tracks.push([e]);
+  });
+  return tracks.length > 0 ? tracks : [];
+}
+
+function getDayClass(day, m, yr) {
+  const dateStr = `${yr}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  const hDict = getHolidaysForYear(yr), aDict = getAdjustedForYear(yr);
+  if (showHolidays && Boolean(hDict[dateStr])) return 'holiday';
+  if (showAdjusted && Boolean(aDict[dateStr])) return 'workday-adjusted';
+  const wd = new Date(yr, m, day).getDay();
+  if (showWeekend && (wd === 0 || wd === 6)) return 'weekend';
+  return '';
+}
+
+const popover = $('hoverPopover');
+function showHoverCard(e, eventId) {
+  if (isDraggingEvent || isCellMouseDown) return;
+  const item = events.find(x => x.id === eventId);
+  if (!item) return;
+  const tm = teams.find(x => x.name === item.team) || { name: item.team, color: '#d50022' };
+  $('popTitle').textContent = item.title;
+  $('popTeam').innerHTML = `<b>${t('pop_team')}</b> ${tm.name}`;
+  $('popDate').innerHTML = `<b>${t('pop_date')}</b> ${item.start} → ${item.end}`;
+  $('popOwner').innerHTML = `<b>${t('pop_owner')}</b> ${item.owner || t('pop_unassigned')}`;
+  $('popLocation').innerHTML = `<b>${t('pop_location')}</b> ${item.location || t('pop_tbd')}`;
+  const tag = $('popTag');
+  tag.textContent = item.status === 'confirmed' ? t('status_confirmed_label') : t('status_planned_label');
+  tag.style.backgroundColor = tm.color;
+  tag.style.color = tm.light ? '#1e293b' : '#ffffff';
+  popover.style.borderLeftColor = tm.color;
+  popover.style.display = 'block';
+  const rect = popover.getBoundingClientRect();
+  let left = e.clientX + 14, top = e.clientY - rect.height - 12;
+  if (top < 10) top = e.clientY + 20;
+  if (left + rect.width > window.innerWidth - 15) left = window.innerWidth - rect.width - 20;
+  popover.style.left = `${left}px`;
+  popover.style.top = `${top}px`;
+  requestAnimationFrame(() => { popover.classList.add('show'); });
+}
+function hideHoverCard() { popover.classList.remove('show'); setTimeout(() => { if (!popover.classList.contains('show')) popover.style.display = 'none'; }, 100); }
+function onCardClick(ev, id) { if (hasMovedDuringDrag) return; editEvent(id); }
+function startDragEventMove(ev, id, teamName, startDay, span) {
+  if (ev.button !== 0) return;
+  ev.stopPropagation(); hideHoverCard();
+  isDraggingEvent = true; draggedEventId = id; dragOriginStartDay = startDay; dragSpanDays = span;
+  dragHoverDay = startDay; dragHoverTeam = decodeURIComponent(teamName); hasMovedDuringDrag = false;
+}
+
+function bindGlobalInteractions() {
+  document.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    const bg = e.target.closest('.g-day-bg'); if (!bg) return;
+    isCellMouseDown = true; selectTeam = bg.getAttribute('data-team');
+    selectStartDay = +bg.getAttribute('data-day'); selectEndDay = selectStartDay;
+    highlightSelectCells();
+  });
+  document.addEventListener('mouseover', e => {
+    if (isDraggingEvent) {
+      hasMovedDuringDrag = true;
+      const bg = e.target.closest('.g-day-bg') || e.target.closest('.g-event-card');
+      if (bg) { dragHoverDay = +bg.getAttribute('data-day') || dragHoverDay; dragHoverTeam = bg.getAttribute('data-team') || dragHoverTeam; highlightDragTargetCells(); }
+      return;
+    }
+    if (isCellMouseDown) {
+      const bg = e.target.closest('.g-day-bg');
+      if (bg && bg.getAttribute('data-team') === selectTeam) { selectEndDay = +bg.getAttribute('data-day'); highlightSelectCells(); }
+    }
+  });
+  document.addEventListener('mouseup', () => {
+    if (isDraggingEvent) {
+      clearDragTargetHighlights();
+      const deltaDays = dragHoverDay - dragOriginStartDay;
+      isDraggingEvent = false;
+      if (hasMovedDuringDrag && deltaDays !== 0) applyEventShift(draggedEventId, deltaDays, dragHoverTeam);
+      return;
+    }
+    if (isCellMouseDown) {
+      isCellMouseDown = false; clearSelectHighlights();
+      const sDay = Math.min(selectStartDay, selectEndDay), eDay = Math.max(selectStartDay, selectEndDay);
+      const sDate = `${year}-${String(currentMonth + 1).padStart(2, '0')}-${String(sDay).padStart(2, '0')}`;
+      const eDate = `${year}-${String(currentMonth + 1).padStart(2, '0')}-${String(eDay).padStart(2, '0')}`;
+      openModal({ team: selectTeam, start: sDate, end: eDate });
+    }
+  });
+}
+function highlightDragTargetCells() {
+  clearDragTargetHighlights(); if (!dragHoverDay || !dragHoverTeam) return;
+  const targetStart = dragHoverDay, targetEnd = dragHoverDay + dragSpanDays - 1;
+  document.querySelectorAll(`.g-day-bg[data-team="${dragHoverTeam}"]`).forEach(bg => {
+    const d = +bg.getAttribute('data-day');
+    if (d >= targetStart && d <= targetEnd) bg.classList.add('drag-target-hover');
+  });
+}
+function clearDragTargetHighlights() { document.querySelectorAll('.g-day-bg.drag-target-hover').forEach(bg => bg.classList.remove('drag-target-hover')); }
+function applyEventShift(eventId, deltaDays, newTeam) {
+  const item = events.find(x => x.id === eventId); if (!item) return;
+  const sDate = new Date(item.start), eDate = new Date(item.end);
+  sDate.setDate(sDate.getDate() + deltaDays); eDate.setDate(eDate.getDate() + deltaDays);
+  item.start = formatDate(sDate); item.end = formatDate(eDate); if (newTeam) item.team = newTeam;
+  persistEvents(); render();
+  toast(t('toast_shift',{title:item.title, start:item.start, end:item.end}));
+}
+function formatDate(d) { const y = d.getFullYear(); const m = String(d.getMonth() + 1).padStart(2, '0'); const day = String(d.getDate()).padStart(2, '0'); return `${y}-${m}-${day}`; }
+function highlightSelectCells() {
+  clearSelectHighlights();
+  const sDay = Math.min(selectStartDay, selectEndDay), eDay = Math.max(selectStartDay, selectEndDay);
+  document.querySelectorAll(`.g-day-bg[data-team="${selectTeam}"]`).forEach(bg => {
+    const d = +bg.getAttribute('data-day');
+    if (d >= sDay && d <= eDay) bg.classList.add('drag-selecting');
+  });
+}
+function clearSelectHighlights() { document.querySelectorAll('.g-day-bg.drag-selecting').forEach(bg => bg.classList.remove('drag-selecting')); }
+
+function setView(v) { view = v; $('yearBtn').classList.toggle('active', v === 'year'); $('monthBtn').classList.toggle('active', v === 'month'); render(); }
+function changeYearFromSelect() { year = +$('yearSelect').value; render(); }
+function changeMonth(delta) {
+  currentMonth += delta;
+  if (currentMonth < 0) { currentMonth = 11; year -= 1; }
+  if (currentMonth > 11) { currentMonth = 0; year += 1; }
+  if (![...$('yearSelect').options].some(o => +o.value === year)) {
+    const opt = document.createElement('option'); opt.value = year; opt.textContent = year;
+    $('yearSelect').appendChild(opt);
+  }
+  $('yearSelect').value = year;
+  updateMonthLabel(); render();
+}
+
+function openModal(pref = {}) {
+  editId = null;
+  $('modalTitle').textContent = t('new_event_title');
+  $('deleteBtn').style.display = 'none';
+  if ($('outlookBtn')) $('outlookBtn').style.display = 'none';
+  ['Title','Owner','Location','Notes'].forEach(x => $('f' + x).value = '');
+  $('fTeam').innerHTML = teams.map(tm => `<option value="${tm.name}">${tm.name}</option>`).join('');
+  $('fTeam').value = pref.team || (teams[0] ? teams[0].name : 'L&D');
+  $('fStatus').value = 'planned';
+  const defaultDate = `${year}-${String(currentMonth + 1).padStart(2, '0')}-01`;
+  $('fStart').value = pref.start || defaultDate;
+  $('fEnd').value = pref.end || pref.start || defaultDate;
+  $('modalBack').style.display = 'flex';
+}
+function closeModal() { $('modalBack').style.display = 'none'; }
+function editEvent(id) {
+  hideHoverCard();
+  const e = events.find(x => x.id === id); if (!e) return;
+  editId = id;
+  $('modalTitle').textContent = t('edit_event_title');
+  $('deleteBtn').style.display = 'block';
+  if ($('outlookBtn')) $('outlookBtn').style.display = 'inline-flex';
+  $('fTeam').innerHTML = teams.map(tm => `<option value="${tm.name}">${tm.name}</option>`).join('');
+  $('fTitle').value = e.title; $('fTeam').value = e.team; $('fOwner').value = e.owner || '';
+  $('fStart').value = e.start; $('fEnd').value = e.end;
+  $('fStatus').value = e.status === 'confirmed' ? 'confirmed' : 'planned';
+  $('fLocation').value = e.location || ''; $('fNotes').value = e.notes || '';
+  $('modalBack').style.display = 'flex';
+}
+function saveEvent() {
+  const title = $('fTitle').value.trim(), start = $('fStart').value, end = $('fEnd').value;
+  if (!title || !start || !end) return toast(t('toast_need_title_dates'));
+  if (end < start) return toast(t('toast_end_before_start'));
+  const obj = { id: editId || Date.now(), title, team: $('fTeam').value, owner: $('fOwner').value.trim(), start, end, status: $('fStatus').value, location: $('fLocation').value.trim(), notes: $('fNotes').value.trim() };
+  if (editId) events = events.map(e => e.id === editId ? obj : e); else events.push(obj);
+  persistEvents(); closeModal(); render(); toast(t('toast_saved'));
+}
+function deleteEvent() {
+  const target = events.find(e => e.id === editId); if (!target) return;
+  if (!confirm(t('confirm_delete',{title:target.title}))) return;
+  const deleted = {...JSON.parse(JSON.stringify(target)), deletedAt: new Date().toISOString()};
+  recycleBin.push(deleted); lastDeletedEvent = deleted; persistProjectCache();
+  events = events.filter(e => e.id !== editId); persistEvents(); closeModal();
+  $('undoDeleteBtn').style.display = 'inline-flex'; updateRecycleCount(); render();
+  toast(t('toast_deleted'));
+}
+function undoDelete() {
+  if (!lastDeletedEvent) return toast(t('toast_no_undo'));
+  const restored = {...lastDeletedEvent}; delete restored.deletedAt;
+  if (events.some(e => String(e.id) === String(restored.id))) restored.id = Date.now();
+  events.push(restored);
+  recycleBin = recycleBin.filter(e => !(String(e.id) === String(lastDeletedEvent.id) && e.deletedAt === lastDeletedEvent.deletedAt));
+  lastDeletedEvent = recycleBin.length ? recycleBin[recycleBin.length-1] : null;
+  persistProjectCache();
+  $('undoDeleteBtn').style.display = lastDeletedEvent ? 'inline-flex' : 'none';
+  persistEvents(); updateRecycleCount(); render(); toast(t('toast_restored'));
+}
+function updateRecycleCount(){ const el = $('recycleCount'); if (el) el.textContent = recycleBin.length ? '('+recycleBin.length+')' : ''; }
+function openRecycleBin(){ renderRecycleBin(); $('recycleModal').style.display = 'flex'; }
+function closeRecycleBin(){ $('recycleModal').style.display = 'none'; }
+function renderRecycleBin(){
+  const box = $('recycleList');
+  if (!recycleBin.length) { box.innerHTML = `<div class="recycle-empty">${t('recycle_empty')}</div>`; return; }
+  box.innerHTML = recycleBin.slice().reverse().map((e,i) => {
+    const idx = recycleBin.length - 1 - i;
+    return `<div class="recycle-row"><div class="recycle-title" title="${e.title}">${e.title}</div><div>${e.start||''}</div><div>${e.team||''}</div><button onclick="restoreFromRecycle(${idx})">${t('recycle_restore')}</button></div>`;
+  }).join('');
+}
+function restoreFromRecycle(i) {
+  const src = recycleBin[i]; if (!src) return;
+  const restored = {...src}; delete restored.deletedAt;
+  if (events.some(e => String(e.id) === String(restored.id))) restored.id = Date.now();
+  events.push(restored); recycleBin.splice(i,1); persistProjectCache();
+  lastDeletedEvent = recycleBin.length ? recycleBin[recycleBin.length-1] : null;
+  persistEvents(); updateRecycleCount(); renderRecycleBin(); render();
+  toast(t('toast_restored'));
+}
+function emptyRecycleBin() {
+  if (!recycleBin.length) return;
+  if (!confirm(t('confirm_empty_recycle'))) return;
+  recycleBin = []; lastDeletedEvent = null; persistProjectCache();
+  $('undoDeleteBtn').style.display = 'none'; updateRecycleCount(); renderRecycleBin();
+  toast(t('toast_recycle_emptied'));
+}
+
+function switchSettingsTab(name){
+  document.querySelectorAll('.settings-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('.settings-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === name));
+}
+function openSettings() {
+  $('cfgAppTitle').value = appTitle;
+  $('cfgAppSubtitle').value = appSubtitle;
+  $('cfgLogoUrl').value = appLogoType === 'url' ? appLogo : '';
+  const cfgLang = $('cfgLanguage'); if (cfgLang) cfgLang.value = currentLang;
+  updateLogoStatus();
+  $('cfgShowLunar').checked = showLunar; $('cfgShowWeekend').checked = showWeekend;
+  $('cfgShowHolidays').checked = showHolidays; $('cfgShowAdjusted').checked = showAdjusted;
+  renderTeamConfigList();
+  switchSettingsTab('basic');
+  $('settingsModal').style.display = 'flex';
+}
+function closeSettings() { $('settingsModal').style.display = 'none'; }
+function renderTeamConfigList() {
+  const container = $('teamConfigList');
+  container.innerHTML = teams.map((tm, idx) => `
+    <div class="team-config-row">
+      <input type="text" id="cfgTeamName_${idx}" value="${tm.name}" />
+      <div class="color-picker-wrapper"><input type="color" id="cfgTeamColor_${idx}" value="${tm.color}" /></div>
+      <button class="danger" onclick="deleteTeamConfig(${idx})" style="padding:4px 8px">✕</button>
+    </div>`).join('');
+}
+function addNewTeamConfig() {
+  const input = prompt(t('prompt_new_team')); if (!input) return;
+  const name = input.trim(); if (!name) return;
+  if (teams.some(tm => tm.name.toLowerCase() === name.toLowerCase())) return alert(t('alert_team_exists'));
+  teams.push({ name, color:'#6366f1', light:false, visible:true }); renderTeamConfigList();
+}
+function deleteTeamConfig(idx) {
+  const name = teams[idx].name;
+  if (events.some(e => e.team === name) || recycleBin.some(e => e.team === name)) return alert(t('alert_team_in_use'));
+  if (confirm(t('confirm_delete_team',{name}))) { teams.splice(idx,1); renderTeamConfigList(); }
+}
+function saveSettings() {
+  appTitle = $('cfgAppTitle').value.trim() || 'Team Planner';
+  appSubtitle = $('cfgAppSubtitle').value.trim();
+  const newLang = $('cfgLanguage') ? $('cfgLanguage').value : currentLang;
+  const langChanged = newLang !== currentLang;
+  currentLang = newLang;
+  const topSel = $('langSelect'); if (topSel) topSel.value = currentLang;
+  document.documentElement.lang = currentLang;
+  showLunar = $('cfgShowLunar').checked; showWeekend = $('cfgShowWeekend').checked;
+  showHolidays = $('cfgShowHolidays').checked; showAdjusted = $('cfgShowAdjusted').checked;
+  const proposed = teams.map((tm, idx) => {
+    const ni = $('cfgTeamName_' + idx), ci = $('cfgTeamColor_' + idx);
+    return {...tm, oldName:tm.name, name:(ni ? ni.value.trim() : '') || tm.name, color:ci ? ci.value : tm.color};
+  });
+  const keys = proposed.map(tm => tm.name.toLowerCase());
+  if (new Set(keys).size !== keys.length) return alert(t('alert_team_dup'));
+  proposed.forEach(tm => { if (tm.oldName !== tm.name) { events.forEach(e => { if (e.team === tm.oldName) e.team = tm.name; }); recycleBin.forEach(e => { if (e.team === tm.oldName) e.team = tm.name; }); } });
+  teams = proposed.map(({oldName, ...tm}) => ({...tm, light:isColorLight(tm.color)}));
+  applyStaticTranslations(); applyBranding(); updateBoldBtnUI(); updateWrapBtnUI(); updateLogoStatus();
+  persistProjectCache(); saveTeamsToLocal(); persistEvents();
+  closeSettings(); renderTeamToggles(); renderLegend(); render();
+  if (langChanged) toast(t('toast_language_changed')); else toast(t('toast_settings_saved'));
+}
+
+function applyBranding() {
+  const titleEl = $('appMainTitle'), subtitleEl = $('appSubtitle'), imageEl = $('appLogoImage'), fallbackEl = $('appLogoFallback');
+  if (titleEl) titleEl.textContent = appTitle || t('app_title_default');
+  if (subtitleEl) { subtitleEl.textContent = appSubtitle || ''; subtitleEl.style.display = appSubtitle ? 'block' : 'none'; }
+  document.title = (appTitle || 'Team Planner') + ' v1.19 Build 01E';
+  if (!imageEl || !fallbackEl) return;
+  if (appLogo) {
+    imageEl.onload = () => { imageEl.style.display='block'; fallbackEl.style.display='none'; };
+    imageEl.onerror = () => { imageEl.style.display='none'; fallbackEl.style.display='inline-block'; };
+    imageEl.src = appLogo;
+  } else { imageEl.removeAttribute('src'); imageEl.style.display='none'; fallbackEl.style.display='inline-block'; }
+}
+function updateLogoStatus() {
+  const el = $('logoStatus'); if (!el) return;
+  el.textContent = !appLogo ? t('logo_status_default') : (appLogoType === 'file' ? t('logo_status_file') : t('logo_status_url'));
+}
+function openLogoFilePicker(){ const input = $('logoFileInput'); input.value = ''; input.click(); }
+function handleLogoFile(ev){
+  const file = ev.target.files && ev.target.files[0]; if (!file) return;
+  const allowed = ['image/png','image/jpeg','image/svg+xml','image/webp'];
+  if (!allowed.includes(file.type)) return alert(t('alert_logo_type'));
+  if (file.size > 1024*1024) return alert(t('alert_logo_size'));
+  const reader = new FileReader();
+  reader.onload = () => { appLogo = String(reader.result||''); appLogoType = 'file'; $('cfgLogoUrl').value = ''; persistBranding(); applyBranding(); updateLogoStatus(); toast(t('toast_logo_file')); };
+  reader.onerror = () => alert(t('alert_logo_read_fail'));
+  reader.readAsDataURL(file);
+}
+function applyLogoUrlFromSettings(){
+  const raw = $('cfgLogoUrl').value.trim();
+  if (!raw) { clearCustomLogo(); return; }
+  let parsed; try { parsed = new URL(raw); } catch(e){ return alert(t('alert_logo_url_bad')); }
+  if (!['http:','https:'].includes(parsed.protocol)) return alert(t('alert_logo_url_proto'));
+  appLogo = raw; appLogoType = 'url'; persistBranding(); applyBranding(); updateLogoStatus(); toast(t('toast_logo_url'));
+}
+function clearCustomLogo(){ appLogo = ''; appLogoType = ''; if ($('cfgLogoUrl')) $('cfgLogoUrl').value = ''; persistBranding(); applyBranding(); updateLogoStatus(); toast(t('toast_logo_reset')); }
+function persistBranding(){ persistProjectCache(); }
+function persistAllSettings(){ persistProjectCache(); }
+function clearAllPlannerData(){
+  if (!confirm(t('confirm_reset_all'))) return;
+  const typed = prompt(t('prompt_reset'));
+  if (typed !== 'RESET') return alert(t('alert_reset_wrong'));
+  Object.keys(localStorage).filter(k => k.startsWith('hr_planner_')).forEach(k => localStorage.removeItem(k));
+  location.reload();
+}
+function isColorLight(hex) { const c = hex.substring(1); const rgb = parseInt(c, 16); const r = (rgb >> 16) & 0xff; const g = (rgb >> 8) & 0xff; const b = (rgb >> 0) & 0xff; return (0.2126*r + 0.7152*g + 0.0722*b) > 180; }
+function saveTeamsToLocal() { localStorage.setItem('hr_planner_teams_global', JSON.stringify(teams)); }
+function persistEvents() { localStorage.setItem('hr_planner_events_global', JSON.stringify(events)); }
+
+function safeProjectFileName(value){ return String(value || 'Team-Planner-Project').trim().replace(/[\/:*?"<>|]+/g,'-').replace(/\s+/g,' ').slice(0,80) || 'Team-Planner-Project'; }
+function fileTimestamp(d=new Date()){ const pad = n => String(n).padStart(2,'0'); return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`; }
+function exportData(){
+  persistProjectCache();
+  const payload = JSON.parse(JSON.stringify(currentProject)); payload.metadata.exportedAt = new Date().toISOString();
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' }), a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = safeProjectFileName(payload.metadata.projectName || appTitle) + '_' + fileTimestamp() + '.tplanner.json';
+  a.click(); URL.revokeObjectURL(a.href); toast(t('toast_exported'));
+}
+function openImportFilePicker(){ const input = $('jsonFileInput'); input.value = ''; input.click(); }
+function validateImportedData(data){
+  if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('root must be object');
+  const source = data.schemaVersion === 'TeamPlannerProject/1.19' || data.metadata ? data : {...data, branding:{title:data.title,subtitle:data.subtitle,logo:data.logo,logoType:data.logoType}, settings:data};
+  if (!Array.isArray(source.events)) throw new Error('missing events array');
+  if (source.teams !== undefined && !Array.isArray(source.teams)) throw new Error('teams must be array');
+  const target = migrateTeams(source.teams || teams), names = new Set(target.map(tm => tm.name.toLowerCase())), ids = new Set();
+  source.events.forEach((e, i) => {
+    const row = i + 1;
+    if (!e || typeof e !== 'object') throw new Error(`item ${row} not object`);
+    if (e.id === undefined || e.id === null || e.id === '') throw new Error(`item ${row} missing id`);
+    if (ids.has(String(e.id))) throw new Error(`duplicate id ${e.id}`);
+    ids.add(String(e.id));
+    if (typeof e.title !== 'string' || !e.title.trim()) throw new Error(`item ${row} missing title`);
+    const tm = normalizeTeamName(e.team, target);
+    if (!names.has(tm.toLowerCase())) throw new Error(`item ${row} team ${e.team||'(empty)'} not found`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(e.start || '') || !/^\d{4}-\d{2}-\d{2}$/.test(e.end || '')) throw new Error(`item ${row} date format must be YYYY-MM-DD`);
+    if (e.end < e.start) throw new Error(`item ${row} end before start`);
+  });
+  return true;
+}
+async function importJSONFile(ev){
+  const file = ev.target.files && ev.target.files[0]; if (!file) return;
+  const lower = file.name.toLowerCase();
+  if (!(lower.endsWith('.json') || lower.endsWith('.tplanner.json'))) return alert(t('alert_import_type'));
+  if (file.size > 5*1024*1024) return alert(t('alert_import_size'));
+  const backup = JSON.parse(JSON.stringify(currentProject));
+  try {
+    const raw = JSON.parse(await file.text()); validateImportedData(raw);
+    const imported = normalizeProject(raw); validateImportedData(imported);
+    currentProject = imported; teams = currentProject.teams; events = currentProject.events;
+    recycleBin = currentProject.recycleBin; lastDeletedEvent = recycleBin.length ? recycleBin[recycleBin.length-1] : null;
+    appTitle = currentProject.branding.title; appSubtitle = currentProject.branding.subtitle;
+    appLogo = currentProject.branding.logo; appLogoType = currentProject.branding.logoType;
+    currentColWidth = currentProject.settings.colWidth; currentFontSize = currentProject.settings.fontSize;
+    isWrapMode = currentProject.settings.isWrapMode; isBoldMode = currentProject.settings.isBoldMode;
+    showLunar = currentProject.settings.showLunar; showWeekend = currentProject.settings.showWeekend;
+    showHolidays = currentProject.settings.showHolidays; showAdjusted = currentProject.settings.showAdjusted;
+    currentLang = currentProject.settings.language || 'zh-CN';
+    document.documentElement.lang = currentLang;
+    const topSel = $('langSelect'); if (topSel) topSel.value = currentLang;
+    persistProjectCache(); applyBranding(); applyStaticTranslations();
+    applyColWidth(currentColWidth); applyFontSize(currentFontSize);
+    updateWrapBtnUI(); updateBoldBtnUI(); updateRecycleCount(); closeSettings();
+    renderTeamToggles(); renderLegend(); render();
+    toast(t('toast_import_ok',{n:events.length}));
+  } catch(err) {
+    currentProject = normalizeProject(backup); teams = currentProject.teams; events = currentProject.events;
+    recycleBin = currentProject.recycleBin; appTitle = currentProject.branding.title;
+    appSubtitle = currentProject.branding.subtitle; appLogo = currentProject.branding.logo;
+    appLogoType = currentProject.branding.logoType;
+    alert(t('alert_import_fail',{msg:err.message || 'invalid project'}));
+  }
+}
+function addDaysToPlannerDate(dateText, days){
+  const parts = String(dateText || '').split('-').map(Number);
+  const d = new Date(Date.UTC(parts[0], parts[1]-1, parts[2]));
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0,10);
+}
+function addCurrentEventToOutlook(){
+  const item = events.find(e => e.id === editId); if (!item) return toast(t('toast_need_title_dates'));
+  const endExclusive = addDaysToPlannerDate(item.end, 1);
+  const body = ['Source: Team Planner', 'Team: ' + (item.team||''), 'Status: ' + (item.status === 'confirmed' ? 'Confirmed' : 'Planned'), 'Owner: ' + (item.owner||''), item.notes ? 'Notes: ' + item.notes : ''].filter(Boolean).join('\n');
+  const params = new URLSearchParams({ path:'/calendar/action/compose', rru:'addevent', subject:item.title, startdt:item.start+'T00:00:00', enddt:endExclusive+'T00:00:00', allday:'true', body, location:item.location||'' });
+  const url = 'https://outlook.office.com/calendar/deeplink/compose?' + params.toString();
+  const popup = window.open(url, '_blank', 'noopener,noreferrer'); if (!popup) location.href = url;
+  toast(t('toast_outlook'));
+}
+function darkenColor(hex, factor = 0.42) {
+  const value = (hex || '#64748b').replace('#','');
+  if (!/^[0-9a-fA-F]{6}$/.test(value)) return '#334155';
+  const r = Math.max(0, Math.round(parseInt(value.slice(0,2),16) * factor));
+  const g = Math.max(0, Math.round(parseInt(value.slice(2,4),16) * factor));
+  const b = Math.max(0, Math.round(parseInt(value.slice(4,6),16) * factor));
+  return `#${[r,g,b].map(v => v.toString(16).padStart(2,'0')).join('')}`;
+}
+function toast(msg){ $('toast').textContent = msg; $('toast').classList.add('show'); setTimeout(() => $('toast').classList.remove('show'), 2200); }
+
+$('modalBack').addEventListener('click', e => { if (e.target === $('modalBack')) closeModal(); });
+$('settingsModal').addEventListener('click', e => { if (e.target === $('settingsModal')) closeSettings(); });
+$('recycleModal').addEventListener('click', e => { if (e.target === $('recycleModal')) closeRecycleBin(); });
+
+/* RECOVERY_MANAGER_BUILD_01E */
+const RECOVERY_KEY='hr_planner_recovery_v119';
+const RECOVERY_META_KEY='hr_planner_recovery_meta_v119';
+const SNAPSHOT_PREFIX='hr_planner_backup_v119_';
+const SNAPSHOT_COUNT=5;
+const SNAPSHOT_INTERVAL_MS=10*60*1000;
+const RECOVERY_DEBOUNCE_MS=1200;
+const EXPORT_REMINDER_CHANGES=20;
+const EXPORT_REMINDER_MS=24*60*60*1000;
+let recoverySaveTimer=null, recoveryDirty=false, recoveryChangeCount=0, lastSnapshotAt=0, suppressRecoveryTracking=false;
+
+function recoveryNow(){ return new Date().toISOString(); }
+function recoveryClone(value){ return JSON.parse(JSON.stringify(value)); }
+function recoveryMeta(){ try { return JSON.parse(localStorage.getItem(RECOVERY_META_KEY)||'{}')||{}; } catch(e){ return {}; } }
+function writeRecoveryMeta(patch){ const next = {...recoveryMeta(), ...patch}; localStorage.setItem(RECOVERY_META_KEY, JSON.stringify(next)); return next; }
+function recoveryProjectName(project=currentProject){ return project?.metadata?.projectName || project?.branding?.title || 'Team Planner Project'; }
+function recoveryTimeText(value){ if (!value) return '--'; const d = new Date(value); return Number.isNaN(d.getTime()) ? String(value) : d.toLocaleString(currentLang, { hour12:false }); }
+function updateRecoveryStatus(mode='saved', text){ const dot = document.getElementById('recoveryDot'); const label = document.getElementById('recoveryStatusText'); if (dot) dot.className = 'recovery-dot' + (mode==='dirty'?' dirty':mode==='warning'?' warning':''); if (label) label.textContent = text || t('recovery_saved'); }
+function buildRecoveryEnvelope(reason='change'){ syncProjectModel(); return { format:'TeamPlannerRecovery/1.19', savedAt:recoveryNow(), reason, project:recoveryClone(currentProject) }; }
+function writeRecoveryCache(reason='change'){
+  if (suppressRecoveryTracking) return;
+  try {
+    const envelope = buildRecoveryEnvelope(reason);
+    localStorage.setItem(RECOVERY_KEY, JSON.stringify(envelope));
+    localStorage.setItem(PROJECT_CACHE_KEY, JSON.stringify(envelope.project));
+    recoveryDirty = false;
+    writeRecoveryMeta({ lastRecoveryAt:envelope.savedAt, changeCount:recoveryChangeCount });
+    updateRecoveryStatus('saved', t('recovery_saved'));
+    maybeCreateSnapshot(envelope); evaluateBackupReminder();
+  } catch(err) { updateRecoveryStatus('warning', t('recovery_cache_broken')); console.error('Recovery save failed', err); }
+}
+function scheduleRecoverySave(reason='change'){
+  if (suppressRecoveryTracking) return;
+  recoveryDirty = true; recoveryChangeCount += 1; updateRecoveryStatus('dirty', '...');
+  clearTimeout(recoverySaveTimer);
+  recoverySaveTimer = setTimeout(() => writeRecoveryCache(reason), RECOVERY_DEBOUNCE_MS);
+}
+function createSnapshot(envelope=buildRecoveryEnvelope('snapshot')){
+  const snapshots = loadSnapshots();
+  const entry = { format:'TeamPlannerSnapshot/1.19', savedAt:envelope.savedAt||recoveryNow(), project:recoveryClone(envelope.project) };
+  snapshots.unshift(entry);
+  snapshots.slice(0, SNAPSHOT_COUNT).forEach((item, index) => localStorage.setItem(SNAPSHOT_PREFIX + (index+1), JSON.stringify(item)));
+  for (let i = snapshots.length + 1; i <= SNAPSHOT_COUNT; i++) localStorage.removeItem(SNAPSHOT_PREFIX + i);
+  lastSnapshotAt = Date.now(); writeRecoveryMeta({ lastSnapshotAt:entry.savedAt });
+}
+function maybeCreateSnapshot(envelope){ const meta = recoveryMeta(); const previous = Date.parse(meta.lastSnapshotAt||0)||lastSnapshotAt||0; if (Date.now() - previous >= SNAPSHOT_INTERVAL_MS) createSnapshot(envelope); }
+function loadSnapshots(){ const list = []; for (let i = 1; i <= SNAPSHOT_COUNT; i++) { try { const value = JSON.parse(localStorage.getItem(SNAPSHOT_PREFIX + i)||'null'); if (value?.project) list.push(value); } catch(e){} } return list.sort((a,b) => Date.parse(b.savedAt||0) - Date.parse(a.savedAt||0)); }
+function readRecoveryEnvelope(){ const raw = localStorage.getItem(RECOVERY_KEY); if (!raw) return { state:'missing' }; try { const value = JSON.parse(raw); if (!value?.project) throw new Error('no project'); validateImportedData(value.project); return { state:'valid', value }; } catch(error){ return { state:'corrupt', error }; } }
+function applyRecoveredProject(project, sourceLabel){
+  suppressRecoveryTracking = true;
+  try {
+    const restored = normalizeProject(recoveryClone(project)); validateImportedData(restored);
+    currentProject = restored; teams = restored.teams; events = restored.events; recycleBin = restored.recycleBin || [];
+    lastDeletedEvent = recycleBin.length ? recycleBin[recycleBin.length-1] : null;
+    appTitle = restored.branding.title; appSubtitle = restored.branding.subtitle; appLogo = restored.branding.logo; appLogoType = restored.branding.logoType;
+    currentColWidth = restored.settings.colWidth; currentFontSize = restored.settings.fontSize;
+    isWrapMode = restored.settings.isWrapMode; isBoldMode = restored.settings.isBoldMode;
+    showLunar = restored.settings.showLunar; showWeekend = restored.settings.showWeekend;
+    showHolidays = restored.settings.showHolidays; showAdjusted = restored.settings.showAdjusted;
+    currentLang = restored.settings.language || 'zh-CN'; document.documentElement.lang = currentLang;
+    const topSel = document.getElementById('langSelect'); if (topSel) topSel.value = currentLang;
+    applyBranding(); applyStaticTranslations(); applyColWidth(currentColWidth); applyFontSize(currentFontSize);
+    updateWrapBtnUI(); updateBoldBtnUI(); updateRecycleCount(); renderTeamToggles(); renderLegend(); render();
+    localStorage.setItem(PROJECT_CACHE_KEY, JSON.stringify(currentProject));
+  } finally { suppressRecoveryTracking = false; }
+  writeRecoveryCache('restored'); closeRecoveryPanel(); toast(t('recovery_from', { src:sourceLabel }));
+}
+function openRecoveryPanel(title, message, items){
+  document.getElementById('recoveryPanelTitle').textContent = title;
+  document.getElementById('recoveryPanelMessage').textContent = message;
+  const list = document.getElementById('recoveryList'); list.innerHTML = '';
+  items.forEach(item => {
+    const row = document.createElement('div'); row.className = 'recovery-item';
+    const main = document.createElement('div'); main.className = 'recovery-item-main';
+    main.innerHTML = '<div class="recovery-item-title"></div><div class="recovery-item-meta"></div>';
+    main.querySelector('.recovery-item-title').textContent = item.title;
+    main.querySelector('.recovery-item-meta').textContent = item.meta;
+    const button = document.createElement('button'); button.className = 'primary'; button.textContent = t('recycle_restore'); button.onclick = item.onRestore;
+    row.append(main, button); list.appendChild(row);
+  });
+  document.getElementById('recoveryPanel').style.display = 'flex';
+}
+function closeRecoveryPanel(){ document.getElementById('recoveryPanel').style.display = 'none'; }
+function detectRecoveryAtStartup(){
+  const recovery = readRecoveryEnvelope();
+  const snapshots = loadSnapshots();
+  const currentModified = Date.parse(currentProject?.metadata?.modifiedAt || 0) || 0;
+  if (recovery.state === 'valid') {
+    const recoveryModified = Date.parse(recovery.value.project?.metadata?.modifiedAt || recovery.value.savedAt || 0) || 0;
+    if (recoveryModified > currentModified + 1000) {
+      openRecoveryPanel(t('recovery_new_found'), t('recovery_new_desc'), [{ title:recoveryProjectName(recovery.value.project), meta:t('recovery_saved_at',{time:recoveryTimeText(recovery.value.savedAt)}), onRestore:() => applyRecoveredProject(recovery.value.project, t('recovery_point')) }]);
+      return;
+    }
+  }
+  if (recovery.state === 'corrupt' && snapshots.length) {
+    openRecoveryPanel(t('recovery_corrupt'), t('recovery_corrupt_desc'), snapshots.map((s,i) => ({ title:recoveryProjectName(s.project), meta:t('recovery_snapshot') + ' ' + (i+1) + ' · ' + t('recovery_saved_at',{time:recoveryTimeText(s.savedAt)}), onRestore:() => applyRecoveredProject(s.project, t('recovery_snapshot')) })));
+  } else if (recovery.state === 'corrupt') {
+    updateRecoveryStatus('warning', t('recovery_cache_broken'));
+  }
+}
+function evaluateBackupReminder(){
+  const meta = recoveryMeta();
+  const lastExport = Date.parse(meta.lastExportAt || 0) || 0;
+  const dueByChanges = recoveryChangeCount >= EXPORT_REMINDER_CHANGES;
+  const dueByTime = !lastExport || Date.now() - lastExport >= EXPORT_REMINDER_MS;
+  const dismissedUntil = Date.parse(meta.reminderDismissedUntil || 0) || 0;
+  const banner = document.getElementById('backupReminderBanner'); if (!banner) return;
+  const shouldShow = (dueByChanges || dueByTime) && Date.now() > dismissedUntil;
+  banner.classList.toggle('show', shouldShow);
+  if (shouldShow) {
+    document.getElementById('backupReminderText').textContent = dueByChanges ? t('backup_due_changes') : t('backup_due_time');
+  }
+}
+function dismissBackupReminder(){ writeRecoveryMeta({ reminderDismissedUntil: new Date(Date.now() + 4*60*60*1000).toISOString() }); document.getElementById('backupReminderBanner')?.classList.remove('show'); }
+function recordSuccessfulExport(){ recoveryChangeCount = 0; writeRecoveryMeta({ lastExportAt:recoveryNow(), changeCount:0, reminderDismissedUntil:null }); document.getElementById('backupReminderBanner')?.classList.remove('show'); }
+function flushRecoveryBeforeExit(){ if (recoveryDirty) { clearTimeout(recoverySaveTimer); writeRecoveryCache('page-exit'); } }
+
+const originalPersistProjectCache = persistProjectCache;
+persistProjectCache = function(){ scheduleRecoverySave('project-change'); };
+saveTeamsToLocal = function(){ scheduleRecoverySave('team-change'); };
+persistEvents = function(){ scheduleRecoverySave('event-change'); };
+persistBranding = function(){ scheduleRecoverySave('branding-change'); };
+persistAllSettings = function(){ scheduleRecoverySave('settings-change'); };
+const originalExportData = exportData;
+exportData = function(){ flushRecoveryBeforeExit(); originalExportData(); recordSuccessfulExport(); };
+window.addEventListener('beforeunload', flushRecoveryBeforeExit);
+setInterval(() => { if (recoveryDirty) writeRecoveryCache('interval'); else maybeCreateSnapshot(buildRecoveryEnvelope('scheduled-snapshot')); }, SNAPSHOT_INTERVAL_MS);
+setTimeout(() => { const meta = recoveryMeta(); recoveryChangeCount = Number(meta.changeCount)||0; detectRecoveryAtStartup(); evaluateBackupReminder(); if (!localStorage.getItem(RECOVERY_KEY)) writeRecoveryCache('initial'); }, 0);
+
+init();
+</script>
+</body>
+</html>
