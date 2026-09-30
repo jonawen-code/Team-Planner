@@ -74,7 +74,205 @@ function normalizeProject(raw){
 let currentProject=normalizeProject(readJSONStorage(PROJECT_CACHE_KEY,null)||buildLegacyProject());
 let teams=currentProject.teams;
 let events=currentProject.events;
-const requiredTeamNames=new Set(events.map(e=>e.team).filter(Boolean));requiredTeamNames.forEach(name=>{if(!teams.some(t=>t.name===name)){const base=defaultTeams.find(t=>t.name===name);teams.push(base?{...base}:{name,color:'#6366f1',light:false,visible:true});}});
+const requiredTea
+
+// --- Full migration: append remaining legacy implementations that were present in HTML ---
+// The following block was extracted from index_v1.19_build01b.html to ensure no raw JS
+// remains rendered in the HTML file. It may contain function implementations that
+// overlap existing ones; later definitions will take precedence.
+
+/* BEGIN: migrated-from-index_v1.19_build01b.html */
+function adjustColWidth(delta) {
+  currentColWidth = Math.min(80, Math.max(34, currentColWidth + delta));
+  applyColWidth(currentColWidth);
+  persistProjectCache();
+}
+function applyColWidth(w) {
+  document.documentElement.style.setProperty('--col-w', `${w}px`);
+  $('colWidthDisplay').textContent = `${w}px`;
+}
+
+function adjustFontSize(delta) {
+  currentFontSize = Math.min(14, Math.max(9, currentFontSize + delta));
+  applyFontSize(currentFontSize);
+  persistProjectCache();
+}
+function applyFontSize(size) {
+  document.documentElement.style.setProperty('--item-font-size', `${size}px`);
+  $('fontSizeDisplay').textContent = `${size}px`;
+}
+
+function toggleBoldMode() {
+  isBoldMode = !isBoldMode;
+  persistProjectCache();
+  updateBoldBtnUI();
+  render();
+  toast(isBoldMode ? '已切换为：粗体显示' : '已切换为：正常字重');
+}
+function updateBoldBtnUI() {
+  const btn = $('boldToggleBtn');
+  btn.textContent = isBoldMode ? '粗体: 开' : '粗体: 关';
+  btn.classList.toggle('active', isBoldMode);
+}
+
+function toggleWrapMode() {
+  isWrapMode = !isWrapMode;
+  persistProjectCache();
+  updateWrapBtnUI();
+  render();
+  toast(isWrapMode ? '已切换为：单元格自动换行显示全部' : '已切换为：单元格单行省略截断 (...)');
+}
+function updateWrapBtnUI() {
+  const btn = $('wrapToggleBtn');
+  btn.textContent = isWrapMode ? '换行: 开 (多行)' : '换行: 关 (省略)';
+  btn.classList.toggle('active', isWrapMode);
+}
+
+function renderTeamToggles() {
+  const bar = $('teamTogglesBar');
+  bar.innerHTML = '<span class="toggle-title">职能团队显示开关:</span>';
+  teams.forEach(t => {
+    const isVis = t.visible !== false;
+    const btn = document.createElement('button');
+    btn.className = `team-pill-btn ${isVis ? 'active' : ''}`;
+    if (isVis) {
+      btn.style.backgroundColor = t.color;
+      if (t.light) btn.style.color = '#1e293b';
+    }
+    btn.innerHTML = `<span class="check-icon">${isVis ? '✓' : '○'}</span> ${t.name}`;
+    btn.onclick = () => {
+      t.visible = !isVis;
+      saveTeamsToLocal();
+      renderTeamToggles();
+      renderLegend();
+      render();
+    };
+    bar.appendChild(btn);
+  });
+}
+
+function renderLegend() {
+  const leg = $('legend');
+  leg.innerHTML = '';
+  teams.filter(t => t.visible !== false).forEach(t => {
+    leg.insertAdjacentHTML('beforeend', `<span class="legend-item"><i class="dot" style="background:${t.color}"></i>${t.name}</span>`);
+  });
+  leg.insertAdjacentHTML('beforeend', `
+    <span class="legend-item"><i class="dot" style="background:var(--holiday-bg)"></i>法定假日</span>
+    <span class="legend-item"><i class="dot" style="background:var(--adjusted-workday);border:1px solid #d97706"></i>周末补班 (27年待定)</span>
+    <span class="status-legend-item"><span class="status-box" style="border-left:3px solid #475569"></span>Confirmed</span>
+    <span class="status-legend-item"><span class="status-box" style="border-left:4px solid transparent"></span>Planned</span>
+    <span class="hint">年份下拉选择；月份箭头切换；按住卡片拖拽平移日期；空白格拖选新建</span>
+  `);
+}
+
+function filtered() {
+  const q = $('search').value.trim().toLowerCase();
+  const visibleTeamNames = new Set(teams.filter(t => t.visible !== false).map(t => t.name));
+
+  return events.filter(e => {
+    if (!visibleTeamNames.has(e.team)) return false;
+    const matchYear = new Date(e.start).getFullYear() === year || new Date(e.end).getFullYear() === year;
+    const matchQ = !q || [e.title, e.owner, e.location, e.status, e.notes].join(' ').toLowerCase().includes(q);
+    return matchYear && matchQ;
+  });
+}
+
+function render() {
+  $('yearSelect').value = year;
+  $('monthLabel').textContent = `${currentMonth + 1}月`;
+  $('viewTitle').textContent = view === 'year' ? `${year} HR 年度总览` : `${year}年 ${currentMonth + 1}月排期`;
+  const list = filtered();
+  $('countText').textContent = `${list.length} 项排期`;
+
+  view === 'year' ? renderYear(list) : renderMonth(list);
+}
+
+function renderYear(list) {
+  let h = '<div class="scroll"><div class="year-grid"><div class="cell headcell">职能团队</div>' +
+    Array.from({length: 12}, (_, i) => `<div class="cell headcell">${i + 1}月</div>`).join('');
+
+  teams.filter(t => t.visible !== false).forEach(t => {
+    h += `<div class="cell teamcell"><i class="dot" style="background:${t.color}"></i>${t.name}</div>`;
+    for (let m = 0; m < 12; m++) {
+      const es = list.filter(e => {
+        if (e.team !== t.name) return false;
+        const s = new Date(e.start), en = new Date(e.end);
+        return (s.getFullYear() === year && s.getMonth() <= m) && (en.getFullYear() === year && en.getMonth() >= m);
+      });
+      h += `<div class="cell">${es.map(e => `
+        <div class="event-pill ${t.light ? 'light' : ''} status-${e.status || 'confirmed'} ${isBoldMode ? 'font-bold-mode' : 'font-normal-mode'}" style="background:${t.color};--confirmed-border:${darkenColor(t.color, 0.42)}" 
+             onclick="editEvent(${e.id})" 
+             onmouseenter="showHoverCard(event, ${e.id})"
+             onmouseleave="hideHoverCard()">
+          ${e.title}
+        </div>`).join('')}</div>`;
+    }
+  });
+  h += '</div></div>';
+  $('board').innerHTML = h;
+}
+
+// 核心修复：绝对精确计算每个月第一天是星期几 (JS getDay: 0=Sun, 1=Mon... -> 转换成 1=Mon...7=Sun)
+function getLunarText(yr,m,d){
+  try {
+    const parts=new Intl.DateTimeFormat('zh-CN-u-ca-chinese',{month:'numeric',day:'numeric'}).formatToParts(new Date(yr,m,d));
+    const rawMonth=parts.find(p=>p.type==='month')?.value||'';
+    const rawDay=parts.find(p=>p.type==='day')?.value||'';
+    const digits={'0':'〇','1':'一','2':'二','3':'三','4':'四','5':'五','6':'六','7':'七','8':'八','9':'九'};
+    const monthNames={'1':'正','2':'二','3':'三','4':'四','5':'五','6':'六','7':'七','8':'八','9':'九','10':'十','11':'十一','12':'腊'};
+    const dayNames={'1':'初一','2':'初二','3':'初三','4':'初四','5':'初五','6':'初六','7':'初七','8':'初八','9':'初九','10':'初十','11':'十一','12':'十二','13':'十三','14':'十四','15':'十五','16':'十六','17':'十七','18':'十八','19':'十九','20':'二十','21':'廿一','22':'廿二','23':'廿三','24':'廿四','25':'廿五','26':'廿六','27':'廿七','28':'廿八','29':'廿九','30':'三十'};
+    const monthKey=String(parseInt(rawMonth,10));
+    const dayKey=String(parseInt(rawDay,10));
+    const cnMonth=monthNames[monthKey]||rawMonth.split('').map(x=>digits[x]||x).join('');
+    const cnDay=dayNames[dayKey]||rawDay.split('').map(x=>digits[x]||x).join('');
+    return cnMonth+'月'+cnDay;
+  } catch(e){ return ''; }
+}
+
+function getFirstDayOfWeek(yr, m) {
+  const d = new Date(yr, m, 1).getDay();
+  return d === 0 ? 7 : d; // 周一为1，周日为7
+}
+
+function renderMonth(list) {
+  const m = currentMonth;
+  const yr = year;
+  const days = new Date(yr, m + 1, 0).getDate();
+  const monthEvents = list.filter(e => {
+    const s = new Date(e.start), en = new Date(e.end);
+    const sMatch = (s.getFullYear() < yr) || (s.getFullYear() === yr && s.getMonth() <= m);
+    const eMatch = (en.getFullYear() > yr) || (en.getFullYear() === yr && en.getMonth() >= m);
+    return sMatch && eMatch;
+  });
+
+  const visibleTeams = teams.filter(t => t.visible !== false);
+
+  const teamTracksMap = {};
+  visibleTeams.forEach(t => {
+    const teamEvts = monthEvents.filter(e => e.team === t.name);
+    teamTracksMap[t.name] = splitIntoTracks(teamEvts, days, m, yr);
+  });
+
+  // render month grid
+  let html = `<div class="month-grid"><div class="month-head"><div class="cell headcell">职能团队</div>`;
+  for (let d = 1; d <= days; d++) html += `<div class="cell headcell day-label">${d}</div>`;
+  html += `</div>`;
+  visibleTeams.forEach(t => {
+    html += `<div class="team-row"><div class="cell teamcell"><i class="dot" style="background:${t.color}"></i>${t.name}</div>`;
+    for (let d = 1; d <= days; d++) {
+      const dayHtml = `<div class="cell g-day" data-team="${t.name}" data-day="${d}"></div>`;
+      html += dayHtml;
+    }
+    html += `</div>`;
+  });
+  html += `</div>`;
+  $('board').innerHTML = html;
+  // draw events on top
+  visibleTeams.forEach(t => drawEventsForTeam(t.name, days, m, yr));
+}
+
+/* END: migrated-from-index_v1.19_build01b.html */
 const lab1=events.find(e=>String(e.id)==='404'&&e.title==='Leading a Team Lab 1'&&e.start==='2026-04-20');if(lab1)lab1.team='L&D';
 let appTitle=currentProject.branding.title;
 let appSubtitle=currentProject.branding.subtitle;
