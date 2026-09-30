@@ -27,7 +27,7 @@ Do not commit confidential or personal planning data to a public repository.
 
 ## Project Files
 
-- `index.html`: Main application
+- `index.html`: Main application, followed is version
 - `sample-data.json`: Generic sample data for testing
 - `LICENSE`: MIT License
 
