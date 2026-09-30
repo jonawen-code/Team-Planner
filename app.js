@@ -336,11 +336,15 @@ function adjustFontSize(delta) {
 function applyFontSize(s) { document.documentElement.style.setProperty('--planner-font-size', `${s}px`); }
 
 // ... (rest of migrated functions follow, already present in HTML and now fully in app.js)
+// NOTE: The full set of functions (render, applyEventShift, bindGlobalInteractions, etc.) were originally
+// in the HTML. To ensure all interactive behaviors are executed from app.js, import the remaining
+// definitions from the HTML by copying or by ensuring they are present here. For now, we reference
+// implementations preserved in the HTML file and make sure critical functions are exposed.
 
 let currentProject=normalizeProject(readJSONStorage(PROJECT_CACHE_KEY,null)||buildLegacyProject());
 let teams=currentProject.teams;
 let events=currentProject.events;
-const requiredTeamNames=new Set(events.map(e=>e.team).filter(Boolean));requiredTeamNames.forEach(name=>{if(!teams.some(t=>t.name===name))teams.push({name,color:'#6366f1',light:false,visible:true});});
+const requiredTeamNames=new Set(events.map(e=>e.team).filter(Boolean));requiredTeamNames.forEach(name=>{if(!teams.some(t=>t.name===name)){const base=defaultTeams.find(t=>t.name===name);teams.push(base?{...base}:{name,color:'#6366f1',light:false,visible:true});}});
 
 // -- rest of application logic migrated from inline script --
 // The full original script is long; remaining functions (render, event handlers, persistence, UI bindings)
